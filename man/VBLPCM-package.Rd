@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2011-03-23\cr
+Version: \tab 1.3\cr
+Date: \tab 2012-01-30\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }
@@ -23,9 +23,10 @@ from. It may be thought of as an intermediary approximation that is more accurat
 the two-stage MLE fit provided by latentnet but a faster approximation to the MCMC sampler provided
 by latentnet. In fact, the VB iterations also converge quicker than the two-stage MLE. 
 
-Furthermore, VBLPCM takes advantage of the stratified sampler of Adrian Raftery, Xiaoyue Niu, Peter
+VBLPCM can also take advantage of the stratified sampler of Adrian Raftery, Xiaoyue Niu, Peter
 Hoff and Ka Yee Yeung. This approximation to the (log)likelihood allows for even larger networks to
-be analysed (see tech report below). 
+be analysed (see tech report below). Rather than using a fixed number of "controls" per geodesic
+distance we set a probability of sampling each non-link at each level. 
 
 Note that in this package (unlike in latentnet) we choose to model sociality effects as fixed rather
 than random. We use the degree of a node as the effect size and there is therefore a single scalar
@@ -33,9 +34,6 @@ parameter controlling each sociality effect modelled for the whole network. This
 from the observation that the correlation between the social random effects in latentnet and the
 degree of the corresponding nodes was very high. 
 
-Outstanding issues: 
-1. Memory leak in gsl optimisation code. Multiple successive runs without quiting leads to RAM
-saturation. 
 }
 \references{
 Michael Salter-Townshend and Thomas Brendan Murphy (2009).
@@ -73,68 +71,68 @@ Societies and Cities in the Age of Instant Access Berlin:Springer, 275--294
 \code{\link[VBLPCM]{vblpcmfit}}
 }
 \examples{
-### simulated data example with missing edges
+### simulated data example with missing edges ###
 rm(list=ls())
 data(simulated.network,package="VBLPCM")
 g<-network(Y, directed=FALSE)
 v.start<-vblpcmstart(g,G=3)
 v.fit<-vblpcmfit(v.start)
-### plot the mean posterior positions
+### plot the mean posterior positions ###
 plot(v.fit, main="simulated network with missing edges: VB Solution") 
-### Use ROC / AUC to get a measure of model fit to the data
+### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
 
-### Sampson's monks
+### Sampson's monks ###
 rm(list=ls())
 data(sampson,package="VBLPCM")
 v.start<-vblpcmstart(samplike,G=3)
 v.fit<-vblpcmfit(v.start)
-### plot the mean posterior positions
+### plot the mean posterior positions ###
 plot(v.fit, main="Sampson's Monks: VB Solution")
-### Who's in each group? 
+### Who's in each group?  ###
 vblpcmgroups(v.fit)
-### Use ROC / AUC to get a measure of model fit to the data
+### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
 
-### create a matrix of link posterior probabilities given the fitted model
+### create a matrix of link posterior probabilities given the fitted model ###
 probs<-predict.vblpcm(v.fit)
-### create a boxplot goodness-of-fit graphic
+### create a boxplot goodness-of-fit graphic ###
 boxplot(split(probs,as.sociomatrix(samplike)))
 
-### Sampson's monks with fixed social effects
+### Sampson's monks with fixed social effects ###
 rm(list=ls())
 data(sampson,package="VBLPCM")
 v.start<-vblpcmstart(samplike,G=3,model="sender")
 v.fit<-vblpcmfit(v.start)
-### plot the mean posterior positions
-plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Sender Effects")
+### plot the mean posterior positions ###
+plot(v.fit, R2=0.02,main="Sampson's Monks: VB with Sender Effects")
 
-### Use ROC / AUC to get a measure of model fit to the data
+### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
-### Look at gof plots
+### Look at gof plots ###
 plot(gof(v.fit))
 
-### find the most probable link that does not in fact occur
+### find the most probable link that does not in fact occur ###
 monks<-network.vertex.names(samplike)
 # save adjacency matrix to Y
 Y<-as.sociomatrix(samplike)
 probs<-predict.vblpcm(v.fit)
 expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
-### this is a self link; let's find the most probable non-link that's not a self link
+### this is a self link; let's find the most probable non-link that's not a self link ###
 diag(Y)<-NaN
 expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
 
-### find the least probable link that does in fact occur
+### find the least probable link that does in fact occur ###
 expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 
-### run a bigger example, using the likelihood sampler set to 0.1
+### run a bigger example, using the likelihood sampler set to 0.2 ###
 rm(list=ls())
 data(aids,package="VBLPCM")
 v.start<-vblpcmstart(aids.net,G=7,model="sender")
 v.fit<-vblpcmfit(v.start, STRAT=0.2)
-### plot the mean posterior positions
-plot(v.fit, R2=0.03,main="Aids Blogs with Sender Effects")
+### plot the mean posterior positions ###
+plot(v.fit, R2=0.05,main="Aids Blogs with Sender Effects")
 
-### Use ROC / AUC to get a measure of model fit to the data
+### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
 }

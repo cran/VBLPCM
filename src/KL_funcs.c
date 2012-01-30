@@ -80,13 +80,6 @@ double KL_V_z_i (const gsl_vector *v_V_z_i)
   for (d=0; d<D; d++)
     params->V_z[i*D+d] = gsl_vector_get(v_V_z_i, d);
   tmpsum = loglikefunc();
-  /*
-  if (isnan(tmpsum))
-    {
-    printf("%d=(%lf,%lf)\n", i, params->V_z[i*D], params->V_z[i*D+1]);
-    getchar();
-    }
-  */
   KL = tmpsum;
   tmpsum = 0;
   for (g = 0; g < *params->G; g++)
@@ -101,7 +94,6 @@ double KL_V_z_i (const gsl_vector *v_V_z_i)
 				     params->V_alpha[g] * tmp);
     }
   KL = fabs (KL + tmpsum);
-  //printf("%d=(%lf,%lf)\n", i, params->V_z[i*D], params->V_z[*i*D+1]);
   return KL;
 }
 
@@ -318,8 +310,8 @@ KL_V_alpha_g (const gsl_vector *v_V_alpha_g)
     if (g!=*params->g)
       tmp += params->V_alpha[g];
   KL =
-    fabs (tmpsum - log(2.0)*(tmp+V_alpha_g) + lgamma(V_alpha_g) +
-   (params->alpha[*params->g]-V_alpha_g)*(gsl_sf_psi(V_alpha_g)-log(2.0)));
+    fabs (tmpsum*(tmp+V_alpha_g) + lgamma(0.5*V_alpha_g) +
+   0.5*(params->alpha[*params->g]-V_alpha_g)*(gsl_sf_psi(0.5*V_alpha_g)));
    //-gsl_sf_psi(params->alpha[*params->g])));
   return KL;
 }
@@ -327,7 +319,7 @@ KL_V_alpha_g (const gsl_vector *v_V_alpha_g)
 void gr_KL_V_alpha_g (const gsl_vector *v_V_alpha_g, void *null, gsl_vector *df)
 {
   int i = *params->i;
-  int g = *params->g, G=*params->G;
+  int g = *params->g;
   double tmpsum = 0.0, tmp;
   int N = *params->N;
   int d;
@@ -343,8 +335,8 @@ void gr_KL_V_alpha_g (const gsl_vector *v_V_alpha_g, void *null, gsl_vector *df)
 	(*params->D* *params->inv_sigma02* gsl_sf_psi_1(0.5* *params->inv_sigma02*V_alpha_g)-
                        0.5* *params->inv_sigma02*(params->V_sigma2[i]+params->V_omega2[g]+tmp));
     }
-  KL = tmpsum + ((V_alpha_g-params->alpha[*params->g])* gsl_sf_psi_1(V_alpha_g) - 
-		     gsl_sf_psi(V_alpha_g)) + gsl_sf_psi(V_alpha_g)/lgamma(V_alpha_g) + G*log(2.0);
+  KL = tmpsum + (0.5*(V_alpha_g-params->alpha[*params->g])* gsl_sf_psi_1(0.5*V_alpha_g) - 
+		     gsl_sf_psi(0.5*V_alpha_g)) + gsl_sf_psi(0.5*V_alpha_g)/lgamma(0.5*V_alpha_g);
   gsl_vector_set(df, 0, -KL);
   return;
 }
@@ -527,13 +519,15 @@ void KL_total (int *P,
   double *STRAT,
   double *KL)
 { 
-  int p, i, g, d, flag;
-  double tmp;
-  params->p = &p;
-  params->i = &i;
-  params->g = &g;
-  params->d = &d;
-  params->flag = &flag;
+  int p, i, g, d, flag=0;
+  double tmp, seed;
+  params=calloc(1,sizeof(Rf_params));
+  params->seed=&seed;
+  params->p=&p;
+  params->i=&i;
+  params->g=&g;
+  params->d=&d;
+  params->flag=&flag;
   params->P=P;
   params->D=D;
   params->N=N;
@@ -568,6 +562,7 @@ void KL_total (int *P,
   params->inv_sigma02=inv_sigma02;
   params->dists=dists;
   params->STRAT=STRAT;
+  flag=0;
   // p1
   *KL = loglikefunc(); 
   // p2
@@ -615,8 +610,9 @@ void KL_total (int *P,
     *KL += 0.5*(*D*(log(V_omega2[g])-log(*omega2)) - *D*(V_omega2[g]/ *omega2) - pow(V_eta[g]-0.0,2.0)/ *omega2 +*D);
   // p7-q7
   for (g=0;g<*G;g++)
-    *KL += (V_alpha[g]-alpha[g])*log(2.0) + lgamma(V_alpha[g])-lgamma(alpha[g]) + (alpha[g]-V_alpha[g])*(gsl_sf_psi(V_alpha[g])-log(2.0));
-  *KL = -*KL;
+    *KL += lgamma(0.5*V_alpha[g])-lgamma(0.5*alpha[g]) + 0.5*(alpha[g]-V_alpha[g])*(gsl_sf_psi(0.5*V_alpha[g]));
+  //*KL = -*KL;
+  free(params);
   return;
 }
 

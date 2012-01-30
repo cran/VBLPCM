@@ -76,8 +76,6 @@ void optim()
       F.fdf = &psi2_fdf;
       break;
     default: gsl_vector_set(x, 0, 6);
-      printf("optim.c Error! exiting...\n"); 
-      exit(1);
       break;
     }
   
@@ -109,7 +107,6 @@ void optim()
       for (dd=0; dd<*params->D; dd++) 
         {
         params->V_z[*params->i* *params->D+dd] = gsl_vector_get (s->x, dd); 
-	//printf("%d iter %d: %.10lf\t", *params->i, (int)iter, params->V_z[*params->i* *params->D+dd] );
 	}
       //getchar();
       break;

@@ -49,8 +49,6 @@ void F (const gsl_vector *v_V_xi, void *null, gsl_vector *df)
       gr_KL_V_psi2(v_V_xi,NULL,df);
       break;
     default: 
-      //printf("bb.c Error! exiting...\n"); 
-      exit(1);
       break;
     }
   return;

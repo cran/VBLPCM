@@ -54,7 +54,6 @@ vblpcmKL<-function(x)
   		     STRAT=as.double(STRAT), KL=as.double(KL), PACKAGE="VBLPCM")
                      return(ans)
                      }
-  
   final_KL<-total_KL(P, d, N, NE, NnonE, NM, G, Y, E, nonE, M, numedges, EnonE, diam, hopslist, XX, V_xi, V_psi2, V_z, V_sigma2, V_eta, 
                      V_lambda, V_omega2, V_nu, V_alpha, xi, psi2, sigma02, omega2, nu, alpha,
   		   inv_sigma02, STRAT, KL)

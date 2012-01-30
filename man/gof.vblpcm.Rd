@@ -8,7 +8,7 @@ from a fitted variational approximation.
 \usage{
 \method{gof}{vblpcm}(object, \dots,
          nsim=100,
-         GOF=~idegree+odegree+distance,
+         GOF=NULL,
          verbose=FALSE)
 }
 \arguments{

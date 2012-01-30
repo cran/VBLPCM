@@ -1,7 +1,7 @@
 # functions for calculating adjacency matrices, edges, non-edges, etc from each other
 #source("adjacency_to_edges.R") 
-vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=1e3, model="plain", CLUST=0,
-                       lcc=TRUE,edgecovs=NULL,nodecovs=NULL,START="FR", seed=NaN)
+vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
+                       lcc=TRUE,edgecovs=NULL,nodecovs=NULL,START="FR", seed=0)
   {
   if (!is.nan(seed))
     set.seed(seed) # use this to seed the random number generator in R
@@ -118,8 +118,8 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=1e3, model="plain", CLUST=0,
   initial_V_xi<-out$B
   if (d>1) 
     {
-    fitmc<-summary(EMclust(initial_V_z,G=G,modelName="VII"),initial_V_z)
-    } else fitmc<-summary(EMclust(initial_V_z,G=G,modelName="V"),initial_V_z)
+    fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="VII"),initial_V_z)
+    } else fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="V"),initial_V_z)
   initial_V_eta<-t(fitmc$parameter$mean)
   initial_V_omega2<-c(t(fitmc$parameter$variance$sigmasq)) # for use with EII
   if (G > 1) initial_V_lambda<-t(fitmc$z)
@@ -133,7 +133,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=1e3, model="plain", CLUST=0,
   if (G>1) initial_V_nu<-fitmc$parameters$pro
   if (G==1) initial_V_nu<-0.5
   initial_V_psi2<-2e0
-  initial_V_alpha<-fitmc$parameters$variance$scale
+  initial_V_alpha<-1/fitmc$parameter$variance$scale
   
   conv_check=1
   
