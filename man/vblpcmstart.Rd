@@ -6,8 +6,8 @@
 variational method. There are returned as a list and that list may be passed directly to
 vblpcmfit(). User specification of the configuration is recommended as tweaks to this list only. 
 }
-\usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=1000,model="plain", CLUST=0, 
-           lcc=TRUE, edgecovs=NULL,nodecovs=NULL,START="FR", seed=NaN)
+\usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=5e3,model="plain", CLUST=0, 
+           lcc=TRUE, edgecovs=NULL,nodecovs=NULL,START="FR", seed=0)
 }
 \arguments{
   \item{g.network}{a network object

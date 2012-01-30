@@ -4,7 +4,7 @@
 #include <gsl/gsl_sf.h>
 #include "headers.h"
 #include <R_ext/Utils.h>
-
+#include <R_ext/Print.h>
 
 #define JP *params->P 
 
@@ -322,25 +322,21 @@ void Rf_VB_bbs(int *steps,
        (d_vector[4] < *tol) && (d_vector[5] < *tol) && (d_vector[6] < *tol) && (d_vector[7] < *tol) && (d_vector[8] < *tol) )
     {
     *params->conv=1;
-    printf("*************************************************\n");
-    printf("All converged after %d iterations\n", l+1);
-    printf("*************************************************\n");
+    Rprintf("*************************************************\n");
+    Rprintf("All converged after %d iterations\n", l+1);
+    Rprintf("*************************************************\n");
     break;
     }
-  /*
-  printf("%d / %d iterations: KL = %lf\n", l+1, *steps, tmp);
-  */
-  printf("%d / %d iterations\n", l+1, *steps);
+  Rprintf("%d / %d iterations\n", l+1, *steps);
 /*
   for (i=0; i<9; i++)
     {
     if (d_vector[i] > *tol)
-      printf("%s change was %e\n", V_names[i], d_vector[i]);
-    //else printf("%s converged after %d iterations\n", V_names[i], l+1);
+      Rprintf("%s change was %e\n", V_names[i], d_vector[i]);
+    //else Rprintf("%s converged after %d iterations\n", V_names[i], l+1);
     }
 */
   }
-    //free(V_names);
     free(samp_nodes);
     free(samp_groups);
     free(samp_coeffs);
@@ -354,6 +350,6 @@ void Rf_VB_bbs(int *steps,
     free(old_omega2);
     free(old_lambda);
     free(params->dists);
-    //free(params);
+    free(params);
     return;
     }

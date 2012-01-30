@@ -4,12 +4,17 @@ if(!exists("gof", mode="function")){
 }
 
 gof.vblpcm <- function (object, ..., nsim=100,
-                      GOF=~idegree+odegree+distance, 
+                      GOF=NULL, 
 		      verbose=FALSE) {
 
-  if(!require(ergm,quiet=TRUE)) stop("gof.vblpcm requires package 'ergm' to use.")
-
+  if(!require(ergm,quietly=TRUE)) stop("gof.vblpcm requires package 'ergm' to use.")
   nw <- object$net
+  if(is.null(GOF)){
+    if(is.directed(nw))
+      GOF<- ~idegree + odegree + espartners + distance
+    else
+      GOF<- ~degree + espartners + distance
+  }
 
   all.gof.vars <- all.vars(GOF)
 
@@ -122,7 +127,7 @@ gof.vblpcm <- function (object, ..., nsim=100,
     Y<-matrix(rbinom(n*n, 1, c(probs)),n)
     # add original missing links
     Y[is.na(as.sociomatrix(object$net))]<-NA
-    SimNetworkSeriesObj[["networks"]][[i]]<-network(Y)
+    SimNetworkSeriesObj[["networks"]][[i]]<-network(Y,directed=is.directed(object$net))
     }
 
   if(verbose){cat("\nCollating simulations\n")}

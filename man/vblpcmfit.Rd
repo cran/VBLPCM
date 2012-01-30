@@ -5,8 +5,8 @@
 \description{Perform optimisation of the variational parameters of the variational approximation to
 the posterior for the latent position cluster model for network data. 
 }
-\usage{vblpcmfit(variational.start, STEPS = 10, maxiter = 100, tol=1e-6, STRAT=1, 
-           seed=NaN, d_vector=rep(TRUE,9))
+\usage{vblpcmfit(variational.start, STEPS = 30, maxiter = 100, tol=1e-6, STRAT=1, 
+           seed=0, d_vector=rep(TRUE,9))
 }
 \arguments{
   \item{variational.start}{The starting configuration; use vblpcmstart() to generate this. 
