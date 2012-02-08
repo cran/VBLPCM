@@ -17,10 +17,11 @@ plot.vblpcm<-function(x, ..., R2=0.2, main="Variational-Bayes Positions", alpha=
   model<-x$model
   d<-x$d
   N<-x$N
+  P_n<-x$P_n
   G<-x$G
   Y<-x$Y
-  XX<-x$XX
-  V_xi<-x$V_xi
+  XX_n<-x$XX_n
+  V_xi_n<-x$V_xi_n
   V_z<-x$V_z
   V_eta<-x$V_eta
   V_lambda<-x$V_lambda
@@ -63,8 +64,10 @@ plot.vblpcm<-function(x, ..., R2=0.2, main="Variational-Bayes Positions", alpha=
   #if (model=="plain") 
   object.scale = formals(plot.network.default)$object.scale
   piesize <- R2 
-  if (model=="receiver" | model=="sender" | model=="social") 
-    piesize <- R2*sqrt(exp(diag(matrix(XX%*%V_xi,N))))
+  if (model=="rreceiver" | model=="rsender")
+    piesize <- R2*(exp(V_xi_n))
+  if (model=="rsocial") 
+    piesize <- R2*(exp(V_xi_n[seq(1,2*N,2)]+V_xi_n[seq(2,2*N,2)]))
   pie.order <- order(piesize, decreasing = TRUE)
   vertex.cex=0 
   if (model!="plain") vertex.cex=piesize*3.5 else vertex.cex=(piesize*diff(XLIM))/10

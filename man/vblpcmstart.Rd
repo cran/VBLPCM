@@ -18,7 +18,7 @@ vblpcmfit(). User specification of the configuration is recommended as tweaks to
 }
   \item{LSTEPS}{Number of steps in the log-likelihood forces algorithm
 }
-  \item{model}{model specified as "plain", "receiver", "sender" or "social"
+  \item{model}{model specified as "plain", "rreceiver", "rsender" or "rsocial". See vblpcmcovs for details. 
 }
   \item{CLUST}{degree of push to clustering at the start
 }
@@ -42,12 +42,12 @@ vblpcmfit(). User specification of the configuration is recommended as tweaks to
 }
 \author{Michael Salter-Townshend
 }
-\seealso{vblpcmfit
+\seealso{vblpcmfit, vblpcmcovs
 }
 \examples{
 data(sampson)
-### plot the mean posterior positions
+### plot the mean posterior positions with initial estimations for variational parameters
+plot(vblpcmstart(samplike,G=3),main="Sampson's Monks: VB Initial Values")
+### plot the mean posterior positions with final estimations for variational parameters
 plot(vblpcmfit(vblpcmstart(samplike,G=3)),main="Sampson's Monks: VB Solution")
-### plot the mean posterior positions with larger node sizes
-plot(vblpcmfit(vblpcmstart(samplike,G=3)),R2=1,main="Sampson's Monks: VB Solution")
 }

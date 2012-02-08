@@ -13,7 +13,7 @@ edges.
 \arguments{
   \item{N}{number of nodes
 }
-  \item{model}{model; may be "plain", "receiver", "sender" or "social"
+  \item{model}{model; may be "plain", "rreceiver", "rsender" or "rsocial". See Details. 
 }
   \item{Y}{adjacency matrix
 }
@@ -22,10 +22,12 @@ edges.
   \item{nodecovs}{optional additional covariate / attribute data on the nodes
 }
 }
-\details{Can be used to construct design matrices with edge covariates, node covariates 
-and / or sociality effects. Node covariates will be differences and treated as edge covariates. 
+\details{Can be used to construct design matrices with edge covariates or node covariates 
+and / or sociality effects. "rreceiver", "rsender" and "rsocial" model random social effects. 
+Node covariates are differenced and treated as edge covariates. 
 }
-\value{A design matrix that is P x N^2
+\value{An edge design matrix that is Pe x N^2 and a node design matrix that is Pn x N
+where Pe is the number of edge covariates and Pn is the number of node covariates. 
 }
 \author{Michael Salter-Townshend
 }

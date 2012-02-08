@@ -45,10 +45,10 @@ from a fitted variational approximation.
 \keyword{degree distribution}
 \examples{
 data(sampson,package="VBLPCM")
-v.start<-vblpcmstart(samplike,G=3,model="sender")
+v.start<-vblpcmstart(samplike,G=3,model="rreceiver")
 v.fit<-vblpcmfit(v.start)
 ### plot the mean posterior positions
-plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Sender Effects")
+plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Receiver Effects")
 ### Look at gof plots
 plot(gof(v.fit))
 }
