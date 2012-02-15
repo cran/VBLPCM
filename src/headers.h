@@ -16,7 +16,8 @@ typedef struct
 {
   int *MAX_ITER;
   int *p;
-  int *P;
+  int *P_n;
+  int *P_e;
   int *d;
   int *D;
   int *N; 
@@ -35,9 +36,12 @@ typedef struct
   int *nonE; // non-edges matrix. NM X 2
   int *M; // missing-edges matrix. NM X 2
   int *EnonE; //edges and non-edges matrix for nodes
-  double *XX; // design matrix for covariates. May also be used for sender / receiver effects, etc. 
-  double *V_xi;
-  double *V_psi2;
+  double *XX_n; // design matrix for node covariates. May also be used for sender / receiver effects, etc. 
+  double *XX_e; // design matrix for edge covariates. 
+  double *V_xi_n;
+  double *V_xi_e;
+  double *V_psi2_n;
+  double *V_psi2_e;
   double *V_z;
   double *V_sigma2;
   double *V_eta;

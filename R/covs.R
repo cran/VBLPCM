@@ -1,58 +1,33 @@
 vblpcmcovs<-function(N, model, Y, edgecovs=NULL,nodecovs=NULL)
   {
-  XX<-matrix(rep(1,N^2),ncol=1) # all get the intercept term
-  P=ncol(XX)
-  if (model=="receiver")
+  XX_n<-NULL
+  XX_e<-matrix(rep(1,N^2),ncol=1) # all get the intercept term
+  if (model=="rreceiver")
     {
     # receiver random effects
-    #P=P+N
-    #XX<-cbind(XX,t(matrix(rep(diag(1,N),N),N)))
-    P=P+1
-    tmp<-apply(Y,2,sum,na.rm=1)
-    tmp<-(tmp-mean(tmp))/sd(tmp)
-    XX<-cbind(XX,rep(tmp,N))
+    XX_n<-cbind(XX_n,rep(1,N))
     }
-  
-  if (model=="sender")
+  if (model=="rsender")
     {
     # sender random effects
-    #XX<-cbind(XX,matrix(0,N^2,N))
-    #for (i in 1:N)
-    #  XX[((i-1)*N+1):(i*N),i+P]<-1
-    #P=P+N
-    P=P+1
-    tmp<-apply(Y,1,sum,na.rm=1)
-    tmp<-(tmp-mean(tmp))/sd(tmp)
-    XX<-cbind(XX,c(t(matrix(rep(tmp,N),N))))
+    XX_n<-cbind(XX_n,rep(1,N))
     }
-  
-  if (model=="social")
+  if (model=="rsocial")
     {
     # sender random effects
-    #XX<-cbind(XX,matrix(0,N^2,N))
-    #for (i in 1:N)
-    #  XX[((i-1)*N+1):(i*N),i+P]<-1
-    #P=P+N
-    #XX[,(P-N+1):P]<-XX[,(P-N+1):P]+t(matrix(rep(diag(1,N),N),N))
-    #XX[,(P-N+1):P][XX[,(P-N+1):P]>1]<-1
-    tmp1<-apply(Y,1,sum,na.rm=1)
-    tmp1<-(tmp1-mean(tmp1))/sd(tmp1)
-    tmp2<-apply(Y,2,sum,na.rm=1)
-    tmp2<-(tmp2-mean(tmp2))/sd(tmp2)
-    P=P+2
-    XX<-cbind(XX,c(t(matrix(rep(tmp1,N),N))),rep(tmp2,N))
+    XX_n<-cbind(XX_n,rep(1,N),rep(1,N))
     }
-  if (!is.null(nodecovs))
+  if (!is.null(nodecovs)) # include option to not model nodecovs as edgecovs?
     {
     tmp<-expand.grid(1:N,1:N)
     nodecovs<-as.matrix(nodecovs)
     nodeedgecovs<-nodecovs[tmp[,1],]-nodecovs[tmp[,2],]
     }
   if (!is.null(nodecovs))
-    XX<-cbind(XX,nodeedgecovs)
+    XX_n<-cbind(XX_n,nodeedgecovs)
   if (!is.null(edgecovs))
-    XX<-cbind(XX,edgecovs)
-  return(as.matrix(XX))
+    XX_e<-cbind(XX_e,edgecovs)
+  return(list("XX_n"=XX_n,"XX_e"=XX_e))
   }
   
   

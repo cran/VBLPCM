@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 1.3\cr
-Date: \tab 2012-01-30\cr
+Version: \tab 2.0\cr
+Date: \tab 2012-02-05\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }
@@ -28,12 +28,9 @@ Hoff and Ka Yee Yeung. This approximation to the (log)likelihood allows for even
 be analysed (see tech report below). Rather than using a fixed number of "controls" per geodesic
 distance we set a probability of sampling each non-link at each level. 
 
-Note that in this package (unlike in latentnet) we choose to model sociality effects as fixed rather
-than random. We use the degree of a node as the effect size and there is therefore a single scalar
-parameter controlling each sociality effect modelled for the whole network. This choice resulted
-from the observation that the correlation between the social random effects in latentnet and the
-degree of the corresponding nodes was very high. 
-
+We also provide four choices of model; these are "plain" and three with random node-specific social effects. 
+"rsender" for sender random effects, "rreceiver" for receiver random effects and "rsocial" for both. 
+For undirected networks only "plain" or "rsocial" may be chosen. 
 }
 \references{
 Michael Salter-Townshend and Thomas Brendan Murphy (2009).
@@ -72,7 +69,6 @@ Societies and Cities in the Age of Instant Access Berlin:Springer, 275--294
 }
 \examples{
 ### simulated data example with missing edges ###
-rm(list=ls())
 data(simulated.network,package="VBLPCM")
 g<-network(Y, directed=FALSE)
 v.start<-vblpcmstart(g,G=3)
@@ -83,7 +79,6 @@ plot(v.fit, main="simulated network with missing edges: VB Solution")
 vblpcmroc(v.fit)
 
 ### Sampson's monks ###
-rm(list=ls())
 data(sampson,package="VBLPCM")
 v.start<-vblpcmstart(samplike,G=3)
 v.fit<-vblpcmfit(v.start)
@@ -99,13 +94,12 @@ probs<-predict.vblpcm(v.fit)
 ### create a boxplot goodness-of-fit graphic ###
 boxplot(split(probs,as.sociomatrix(samplike)))
 
-### Sampson's monks with fixed social effects ###
-rm(list=ls())
+### Sampson's monks with sender random effects ###
 data(sampson,package="VBLPCM")
-v.start<-vblpcmstart(samplike,G=3,model="sender")
+v.start<-vblpcmstart(samplike,G=3,model="rreceiver")
 v.fit<-vblpcmfit(v.start)
 ### plot the mean posterior positions ###
-plot(v.fit, R2=0.02,main="Sampson's Monks: VB with Sender Effects")
+plot(v.fit, R2=0.1,main="Sampson's Monks: VB with Receiver Random Effects")
 
 ### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
@@ -126,12 +120,11 @@ expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
 expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 
 ### run a bigger example, using the likelihood sampler set to 0.2 ###
-rm(list=ls())
 data(aids,package="VBLPCM")
-v.start<-vblpcmstart(aids.net,G=7,model="sender")
+v.start<-vblpcmstart(aids.net,G=7,model="rsender")
 v.fit<-vblpcmfit(v.start, STRAT=0.2)
 ### plot the mean posterior positions ###
-plot(v.fit, R2=0.05,main="Aids Blogs with Sender Effects")
+plot(v.fit, R2=0.1,main="Aids Blogs with Sender Random Effects")
 
 ### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)

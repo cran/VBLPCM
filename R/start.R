@@ -6,7 +6,14 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   if (!is.nan(seed))
     set.seed(seed) # use this to seed the random number generator in R
   directed=is.directed(g.network)
-  if (!directed & (model=="sender" | model=="receiver"))
+  if (!(model=="plain" | model=="rsender" | model=="rreceiver" | model=="rsocial"))
+    {
+    print("Error: unknown model") 
+    print("Defaulting to plain model without social effects") 
+    print("see vblpcmcovs for details") 
+    model="plain"
+    }
+  if (!directed & (model=="rsender" | model=="rreceiver"))
     {
     print("Error: Model with directed effects cannot be applied to an undirected network") 
     print("Defaulting to plain model without social effects") 
@@ -61,12 +68,15 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   hopslist<-hops_to_hopslist(hops,diam,N) 
   # create covariates design matrix
   XX<-vblpcmcovs(N,model,Y,edgecovs,nodecovs)
-  if (!directed & (model=="social"))
+  XX_n<-XX$XX_n
+  XX_e<-XX$XX_e
+  P_n=ncol(XX_n)
+  if (is.null(P_n))  
     {
-    XX[,2]<-XX[,2]+XX[,3] # combine sender and receiver
-    XX<-XX[,-3]
+    P_n=0
+    XX_n=0
     }
-  P=ncol(XX)
+  P_e=ncol(XX_e)
   
   # variational parameters are: 
   #1. V_z 
@@ -112,14 +122,42 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     p=mean(y,na.rm=1)
     B<-mean(tmpx)+log(p)-log(1-p) # "average distance" + log-odds(p) 
     }
-  B<-c(B,rep(1,P-1))[1:P]
-  out<-log_like_forces(g.network, d, P, X, B, XX, m=N, LSTEPS)
+  out<-log_like_forces(g.network, d, X, B, m=N, LSTEPS)
   initial_V_z<-out$X
-  initial_V_xi<-out$B
+  initial_V_xi_e<-out$B
+  if (model=="rreceiver") 
+    {
+    initial_V_xi_n<-apply(Y,2,sum,na.rm=1)
+    initial_V_xi_n<-(initial_V_xi_n-mean(initial_V_xi_n))/sd(initial_V_xi_n)
+    }
+  if (model=="rsender") 
+    {
+    initial_V_xi_n<-apply(Y,1,sum,na.rm=1)
+    initial_V_xi_n<-(initial_V_xi_n-mean(initial_V_xi_n))/sd(initial_V_xi_n)
+    }
+  if (model =="rsocial") 
+    {
+    tmp1<-apply(Y,2,sum,na.rm=1)
+    tmp1<-(tmp1-mean(tmp1))/sd(tmp1)
+    tmp2<-apply(Y,1,sum,na.rm=1)
+    tmp2<-(tmp2-mean(tmp2))/sd(tmp2)
+    initial_V_xi_n<-c(t(matrix(c(tmp1, tmp2),N)))
+    }
   if (d>1) 
     {
     fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="VII"),initial_V_z)
     } else fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="V"),initial_V_z)
+  if (is.null(fitmc$bic))
+    {
+    print("Couldn't fit initial clustering using mclust")
+    print("Try using a different initialisation or different number of clusters or latent space dimension")
+    print("Using no groups for now")
+    G=1
+    if (d>1) 
+      {
+      fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="VII"),initial_V_z)
+      } else fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="V"),initial_V_z)
+    }
   initial_V_eta<-t(fitmc$parameter$mean)
   initial_V_omega2<-c(t(fitmc$parameter$variance$sigmasq)) # for use with EII
   if (G > 1) initial_V_lambda<-t(fitmc$z)
@@ -144,10 +182,15 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   V_omega2<-initial_V_omega2
   V_nu<-initial_V_nu
   V_alpha<-initial_V_alpha
-  if (length(initial_V_psi2)==1) 
-    initial_V_psi2<-c(initial_V_psi2, rep(initial_V_psi2,P-1)) 
-  V_xi<-initial_V_xi
-  V_psi2<-initial_V_psi2
+  initial_V_xi_e<-c(initial_V_xi_e,rep(0,P_e-1))
+  initial_V_psi2_e<-rep(initial_V_psi2,P_e) 
+  if (P_n>0)
+    {
+    V_xi_n<-initial_V_xi_n
+    V_psi2_n<-rep(initial_V_psi2,P_n)
+    } else {V_xi_n<-NaN; V_psi2_n<-NaN}
+  V_xi_e<-initial_V_xi_e
+  V_psi2_e<-initial_V_psi2_e
   
   # priors
   xi=0
@@ -159,8 +202,10 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   nu=rep(2.5,G)
   ###################################
   variational.start<-list()
+  seed->variational.start$seed
   g.network->variational.start$net
-  P->variational.start$P
+  P_n->variational.start$P_n
+  P_e->variational.start$P_e
   model->variational.start$model
   d->variational.start$d
   N->variational.start$N
@@ -176,9 +221,12 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   EnonE->variational.start$EnonE
   diam->variational.start$diam
   hopslist->variational.start$hopslist
-  XX->variational.start$XX
-  V_xi->variational.start$V_xi
-  V_psi2->variational.start$V_psi2
+  XX_n->variational.start$XX_n
+  XX_e->variational.start$XX_e
+  V_xi_n->variational.start$V_xi_n
+  V_xi_e->variational.start$V_xi_e
+  V_psi2_n->variational.start$V_psi2_n
+  V_psi2_e->variational.start$V_psi2_e
   V_z->variational.start$V_z
   V_sigma2->variational.start$V_sigma2
   V_eta->variational.start$V_eta

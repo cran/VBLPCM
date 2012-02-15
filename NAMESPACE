@@ -1,12 +1,3 @@
-# Export all names
-exportPattern(".")
+# Export everything
+exportPattern("*")
 
-# Import all packages listed as Imports or Depends
-import(
-  MASS,
-  boot,
-  mclust,
-  network,
-  sna,
-  ergm
-)

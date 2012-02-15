@@ -2,12 +2,14 @@
 #include <gsl/gsl_vector.h>
 #include "headers.h"
 
-void gr_KL_V_xi(const gsl_vector *V_xi, void *null, gsl_vector *df);
+void gr_KL_V_xi_n(const gsl_vector *V_xi_n, void *null, gsl_vector *df);
+void gr_KL_V_xi_e(const gsl_vector *V_xi_e, void *null, gsl_vector *df);
 void gr_KL_V_z_i(const gsl_vector *V_z_i, void *null, gsl_vector *df);
 void gr_KL_V_sigma2_i(const gsl_vector *V_sigma2_i, void *null, gsl_vector *df);
 void gr_KL_V_alpha_g(const gsl_vector *V_alpha_g, void *null, gsl_vector *df);
 void gr_KL_V_nu_g(const gsl_vector *V_nu_g, void *null, gsl_vector *df);
-void gr_KL_V_psi2(const gsl_vector *V_psi2, void *null, gsl_vector *df);
+void gr_KL_V_psi2_n(const gsl_vector *V_psi2_n, void *null, gsl_vector *df);
+void gr_KL_V_psi2_e(const gsl_vector *V_psi2_e, void *null, gsl_vector *df);
 
 int signum(double x)
 {
@@ -26,27 +28,33 @@ int signum(double x)
   }
 }
 
-void F (const gsl_vector *v_V_xi, void *null, gsl_vector *df)
+void F (const gsl_vector *V, void *null, gsl_vector *df)
   {
   switch (*params->flag)
     {
     case 0: 
-      gr_KL_V_xi(v_V_xi,NULL,df);
+      gr_KL_V_xi_n(V,NULL,df);
+      break;
+    case 6: 
+      gr_KL_V_xi_e(V,NULL,df);
       break;
     case 1: 
-      gr_KL_V_z_i(v_V_xi,NULL,df);
+      gr_KL_V_z_i(V,NULL,df);
       break;
     case 2: 
-      gr_KL_V_sigma2_i(v_V_xi,NULL,df);
+      gr_KL_V_sigma2_i(V,NULL,df);
       break;
     case 3: 
-      gr_KL_V_alpha_g(v_V_xi,NULL,df);
+      gr_KL_V_alpha_g(V,NULL,df);
       break;
     case 4: 
-      gr_KL_V_nu_g(v_V_xi,NULL,df);
+      gr_KL_V_nu_g(V,NULL,df);
       break;
     case 5: 
-      gr_KL_V_psi2(v_V_xi,NULL,df);
+      gr_KL_V_psi2_n(V,NULL,df);
+      break;
+    case 7: 
+      gr_KL_V_psi2_e(V,NULL,df);
       break;
     default: 
       break;
@@ -84,7 +92,9 @@ void bb(double *lim, double *tol)
   // assign the new value
   switch (*params->flag)
     {
-    case 0: params->V_xi[*params->p] = gsl_vector_get (ab, 0); 
+    case 0: params->V_xi_n[*params->i* *params->P_n+*params->p] = gsl_vector_get (ab, 0); 
+      break;
+    case 6: params->V_xi_e[*params->p] = gsl_vector_get (ab, 0); 
       break;
     case 1: params->V_z[*params->i* *params->D + *params->d] = gsl_vector_get (ab, 0); 
       break;
@@ -94,7 +104,9 @@ void bb(double *lim, double *tol)
       break;
     case 4: params->V_nu[*params->g] = gsl_vector_get (ab, 0); 
       break;
-    case 5: params->V_psi2[*params->p] = gsl_vector_get (ab, 0); 
+    case 5: params->V_psi2_n[*params->p] = gsl_vector_get (ab, 0); 
+      break;
+    case 7: params->V_psi2_e[*params->p] = gsl_vector_get (ab, 0); 
       break;
     }
   gsl_vector_free (a);

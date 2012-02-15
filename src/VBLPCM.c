@@ -6,9 +6,6 @@
 #include <R_ext/Utils.h>
 #include <R_ext/Print.h>
 
-#define JP *params->P 
-
-
 double diff_max(double *vec1, double *vec2, int n) // compute largest absolute difference b/w two vectors
   {
   int i;
@@ -32,7 +29,8 @@ void optim();
 
 void Rf_VB_bbs(int *steps,
   int *max_iter,
-  int *P,
+  int *P_n,
+  int *P_e,
   int *D,
   int *N, 
   int *NE, // #edges
@@ -47,9 +45,12 @@ void Rf_VB_bbs(int *steps,
   int *EnonE,
   int *diam,
   int *hopslist,
-  double *XX,
-  double *V_xi,
-  double *V_psi2,
+  double *XX_n,
+  double *XX_e,
+  double *V_xi_n,
+  double *V_xi_e,
+  double *V_psi2_n,
+  double *V_psi2_e,
   double *V_z,
   double *V_sigma2,
   double *V_eta,
@@ -70,13 +71,14 @@ void Rf_VB_bbs(int *steps,
   double *d_vector,
   int *conv)
     {
-    double lim[2]={-1.0e2,1.0e2};
-    int i, j, d, g, p, l, g1;
-    double tmp, tmpsum1, tmpsum2;
-    double mu_nought = 0.0;
+  double lim[2]={-1.0e2,1.0e2};
+  int i, j, d, g, p, l, g1;
+  double tmp, tmpsum1, tmpsum2;
+  double mu_nought = 0.0;
   params=calloc(1,sizeof(Rf_params));
   params->MAX_ITER=max_iter;
-  params->P=P;
+  params->P_n=P_n;
+  params->P_e=P_e;
   params->p=&p;
   params->D=D;
   params->d=&d;
@@ -94,9 +96,12 @@ void Rf_VB_bbs(int *steps,
   params->EnonE=EnonE;
   params->diam=diam; 
   params->hopslist=hopslist; 
-  params->XX=XX; // design matrix for covariates. May also be used for sender / receiver effects, etc.
-  params->V_xi=V_xi;
-  params->V_psi2=V_psi2;
+  params->XX_n=XX_n; // design matrix for node covariates. May also be used for sender / receiver effects, etc.
+  params->XX_e=XX_e; // design matrix for edge covariates. 
+  params->V_xi_n=V_xi_n;
+  params->V_xi_e=V_xi_e;
+  params->V_psi2_n=V_psi2_n;
+  params->V_psi2_e=V_psi2_e;
   params->V_z=V_z;
   params->V_sigma2=V_sigma2;
   params->V_eta=V_eta;
@@ -117,11 +122,17 @@ void Rf_VB_bbs(int *steps,
   params->conv=conv;
   int *samp_nodes = calloc(*N, sizeof(int));
   int *samp_groups= calloc(*G, sizeof(int));
-  int *samp_coeffs= calloc(JP, sizeof(int));
-  double *old_xi, *old_psi2, *old_z, *old_sigma2, *old_alpha,
+  int *samp_coeffs_n=calloc(1,sizeof(int)), *samp_coeffs_e=calloc(*P_e, sizeof(int)); 
+  double *old_xi_n=calloc(1,sizeof(int)), *old_xi_e, *old_psi2_n=calloc(1,sizeof(int)), *old_psi2_e, *old_z, *old_sigma2, *old_alpha,
          *old_nu, *old_eta, *old_lambda, *old_omega2;
-  old_xi = calloc(*P, sizeof(double));
-  old_psi2 = calloc(*P, sizeof(double));
+  if (*P_n > 0)
+    {
+    samp_coeffs_n= calloc(*P_n, sizeof(int));
+    old_xi_n = calloc(*P_n* *N, sizeof(double));
+    old_psi2_n = calloc(*P_n, sizeof(double));
+    }
+  old_xi_e = calloc(*P_e, sizeof(double));
+  old_psi2_e = calloc(*P_e, sizeof(double));
   old_z = calloc(*N * *D, sizeof(double));
   old_sigma2 = calloc(*N, sizeof(double));
   old_alpha = calloc(*G, sizeof(double));
@@ -288,34 +299,79 @@ void Rf_VB_bbs(int *steps,
     d_vector[6]=diff_max(V_nu, old_nu, *G);
     } else d_vector[6] = 0.0;
   R_CheckUserInterrupt();
-  if (d_vector[7] > *tol)
+  if (*P_n > 0)
     {
-    flag=0;
-    memcpy(old_xi, V_xi, *P*sizeof(double));
-    sample_permutation(JP, samp_coeffs, params->seed);
-    for (p=0;p<JP;p++) 
+    if (d_vector[7])
       {
-      params->p=&samp_coeffs[p];
-      //params->p=&p;
-      lim[0]=-2.0e1; lim[1]=2.0e1;
+      flag=0;
+      memcpy(old_xi_n, V_xi_n, *P_n* *N*sizeof(double));
+      sample_permutation(*P_n, samp_coeffs_n, params->seed);
+      for (p=0;p<*P_n;p++) 
+        {
+        params->p=&samp_coeffs_n[p];
+        lim[0]=-1.0e2; lim[1]=1.0e2;
+        sample_permutation(*N, samp_nodes, params->seed);
+        for (i=0; i<*N; i++)
+          {
+          params->i=&samp_nodes[i];
+          bb(lim, tol);
+          }
+       // now shift for mean=0 
+       tmp=0.0;
+       for (i=0; i<*N; i++)
+         tmp+=V_xi_n[i* *params->P_n+ *params->p];
+       tmp/= *N;
+       for (i=0; i<*N; i++)
+         V_xi_n[i* *params->P_n+ *params->p]-=tmp;
+       // now scale for sd=sqrt(V_psi2_n)
+       tmp=0.0;
+       for (i=0; i<*N; i++)
+         tmp+=pow(V_xi_n[i* *params->P_n+ *params->p],2.0);
+       tmp/= *N;
+       tmp=sqrt(tmp);
+       for (i=0; i<*N; i++)
+         V_xi_n[i* *params->P_n+ *params->p]=(V_xi_n[i* *params->P_n+ *params->p]*sqrt(V_psi2_n[*params->p]))/tmp;
+        }
+      }
+    d_vector[7]=diff_max(V_xi_n, old_xi_n, *P_n* *N);
+    flag=6;
+    memcpy(old_xi_e, V_xi_e, *P_e*sizeof(double));
+    sample_permutation(*P_e, samp_coeffs_e, params->seed);
+    for (p=0;p<*P_e;p++) 
+      {
+      params->p=&samp_coeffs_e[p];
+      lim[0]=-1.0e2; lim[1]=1.0e2;
       bb(lim, tol);
       }
-    d_vector[7]=diff_max(V_xi, old_xi, *P);
+    tmp=diff_max(V_xi_e, old_xi_e, *P_e);
+    d_vector[7]=(tmp>d_vector[7] ? tmp : d_vector[7]);
     } else d_vector[7] = 0.0;
   R_CheckUserInterrupt();
-  if (d_vector[8] > *tol)
+  if (*P_n > 0)
     {
-    flag=5;
-    memcpy(old_psi2, V_psi2, *P*sizeof(double));
-    sample_permutation(JP, samp_coeffs, params->seed);
-    for (p=0;p<JP;p++) 
+    if (d_vector[8] > *tol)
       {
-      params->p=&samp_coeffs[p];
-      //params->p=&p;
+      flag=5;
+      memcpy(old_psi2_n, V_psi2_n, *P_n*sizeof(double));
+      for (p=0;p<*P_n;p++) 
+        {
+        params->p=&p;
+        lim[0]=1.0e-8; lim[1]=1.0e1;
+        bb(lim, tol); 
+        }
+      }
+    d_vector[8]=diff_max(V_psi2_e, old_psi2_e, *P_e);
+    flag=7;
+    memcpy(old_psi2_e, V_psi2_e, *P_e*sizeof(double));
+    sample_permutation(*P_e, samp_coeffs_e, params->seed);
+    for (p=0;p<*P_e;p++) 
+      {
+      params->p=&samp_coeffs_e[p];
       lim[0]=1.0e-8; lim[1]=1.0e1;
       bb(lim, tol); 
       }
-    d_vector[8]=diff_max(V_psi2, old_psi2, *P);
+    tmp=diff_max(V_psi2_e, old_psi2_e, *P_e);
+    d_vector[8]=(tmp>d_vector[8] ? tmp : d_vector[8]);
     } else d_vector[8] = 0.0;
   
   if ( (d_vector[0] < *tol) && (d_vector[1] < *tol) && (d_vector[2] < *tol) && (d_vector[3] < *tol) && 
@@ -339,9 +395,15 @@ void Rf_VB_bbs(int *steps,
   }
     free(samp_nodes);
     free(samp_groups);
-    free(samp_coeffs);
-    free(old_xi);
-    free(old_psi2);
+    free(samp_coeffs_e);
+    free(old_xi_e);
+    if (*P_n > 0)
+      {
+      free(samp_coeffs_n);
+      free(old_xi_n);
+      free(old_psi2_n);
+      }
+    free(old_psi2_e);
     free(old_z);
     free(old_sigma2);
     free(old_alpha);

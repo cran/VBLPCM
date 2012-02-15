@@ -5,12 +5,11 @@
 #define damp 1.0e0
 #define LIM 2.0e1
 
-void log_like_forces(int *directed, int *N, int *D, int *P, int *steps, double *Y, double *X, double *B, double *XX, double *m){
+void log_like_forces(int *directed, int *N, int *D, int *steps, double *Y, double *X, double *B, double *m){
   double *dxdy=calloc(*N* *D, sizeof(double)); // position change vector
   double xd[*D], ded, f;
-  int i, j, k, d, p, s;
+  int i, j, k, d, s;
   double coolexp = 1.5;
-  double sum_B;
   double t;
   if (*steps > 0) // so that we can skip it if we like
   for(i=*steps;i>0;i--) {
@@ -22,9 +21,6 @@ void log_like_forces(int *directed, int *N, int *D, int *P, int *steps, double *
     for(k=s;k<*N;k++) 
       if ((k!=j) & (!isnan(Y[j* *N+k])))
 	{
-	sum_B=0.0;
-	for (p=0;p<*P;p++)
-  	  sum_B += B[p]*XX[(j* *N + k)* *P + p];;
         /* Obtain difference vector */
 	ded = 0.0;
         for (d=0;d<*D;d++)
@@ -35,7 +31,7 @@ void log_like_forces(int *directed, int *N, int *D, int *P, int *steps, double *
         ded=sqrt(ded);
 	for (d=0;d<*D;d++)
           xd[d]/=ded;                /* Rescale differences to length 1 */
-        f=-Y[j* *N+k]*(sum_B-ded)-log(1.0+exp(sum_B-ded));
+        f=-Y[j* *N+k]*(*B-ded)-log(1.0+exp(*B-ded));
   	for (d=0;d<*D;d++)
           {
           MATRIX(dxdy, j, d)-=xd[d]*damp*(f); /* Add to the position change vector */

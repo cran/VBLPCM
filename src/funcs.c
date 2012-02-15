@@ -26,6 +26,7 @@ void sample_permutation(int N, int *samp, double *seed)
     samp[i] = tmp->data[i];
     //samp[i] = i;
   gsl_permutation_free (tmp);
+  *seed=gsl_rng_get(r);
   gsl_rng_free(r);
   return;
   }

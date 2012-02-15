@@ -5,24 +5,30 @@
 #include "gsl/gsl_multimin.h"
 #include "headers.h"
 
-double KL_V_xi(const gsl_vector *V_xi, void *null);
+double KL_V_xi_n(const gsl_vector *V_xi_n, void *null);
+double KL_V_xi_e(const gsl_vector *V_xi_e, void *null);
 double KL_V_z_i(const gsl_vector *V_z_i, void *null);
 double KL_V_sigma2_i(const gsl_vector *log_V_sigma2_i, void *null);
 double KL_V_alpha_g(const gsl_vector *log_V_alpha_g, void *null);
 double KL_V_nu_g(const gsl_vector *log_V_nu_g, void *null);
-double KL_V_psi2(const gsl_vector *log_V_psi2, void *null);
-void gr_KL_V_xi(const gsl_vector *V_xi, void *null, gsl_vector *df);
+double KL_V_psi2_n(const gsl_vector *log_V_psi2_n, void *null);
+double KL_V_psi2_e(const gsl_vector *log_V_psi2_e, void *null);
+void gr_KL_V_xi_n(const gsl_vector *V_xi_n, void *null, gsl_vector *df);
+void gr_KL_V_xi_e(const gsl_vector *V_xi_e, void *null, gsl_vector *df);
 void gr_KL_V_z_i(const gsl_vector *V_z_i, void *null, gsl_vector *df);
 void gr_KL_V_sigma2_i(const gsl_vector *V_sigma2_i, void *null, gsl_vector *df);
 void gr_KL_V_alpha_g(const gsl_vector *V_alpha_g, void *null, gsl_vector *df);
 void gr_KL_V_nu_g(const gsl_vector *V_nu_g, void *null, gsl_vector *df);
-void gr_KL_V_psi2(const gsl_vector *V_psi2, void *null, gsl_vector *df);
-void xi_fdf(const gsl_vector *V_xi, void *null, double *f, gsl_vector *df);
+void gr_KL_V_psi2_n(const gsl_vector *V_psi2_n, void *null, gsl_vector *df);
+void gr_KL_V_psi2_e(const gsl_vector *V_psi2_e, void *null, gsl_vector *df);
+void xi_n_fdf(const gsl_vector *V_xi_n, void *null, double *f, gsl_vector *df);
+void xi_e_fdf(const gsl_vector *V_xi_e, void *null, double *f, gsl_vector *df);
 void z_i_fdf(const gsl_vector *V_z_i, void *null, double *f, gsl_vector *df);
 void sigma2_i_fdf(const gsl_vector *log_V_sigma2_i, void *null, double *f, gsl_vector *df);
 void alpha_g_fdf(const gsl_vector *log_V_alpha_g, void *null, double *f, gsl_vector *df);
 void nu_g_fdf(const gsl_vector *log_V_nu_g, void *null, double *f, gsl_vector *df);
-void psi2_fdf(const gsl_vector *log_V_psi2, void *null, double *f, gsl_vector *df);
+void psi2_n_fdf(const gsl_vector *log_V_psi2_n, void *null, double *f, gsl_vector *df);
+void psi2_e_fdf(const gsl_vector *log_V_psi2_e, void *null, double *f, gsl_vector *df);
 
 
 void optim()
@@ -43,10 +49,15 @@ void optim()
   F.n = SIZE;
   switch (flag)
     {
-    case 0: gsl_vector_set(x, 0, params->V_xi[0]);
-      F.f = &KL_V_xi;
-      F.df = &gr_KL_V_xi;
-      F.fdf = &xi_fdf;
+    case 0: gsl_vector_set(x, 0, params->V_xi_n[*params->p]);
+      F.f = &KL_V_xi_n;
+      F.df = &gr_KL_V_xi_n;
+      F.fdf = &xi_n_fdf;
+      break;
+    case 6: gsl_vector_set(x, 0, params->V_xi_e[*params->p]);
+      F.f = &KL_V_xi_e;
+      F.df = &gr_KL_V_xi_e;
+      F.fdf = &xi_e_fdf;
       break;
     case 1: 
       for (dd=0; dd<*params->D; dd++)
@@ -70,10 +81,15 @@ void optim()
       F.df = &gr_KL_V_nu_g;
       F.fdf = &nu_g_fdf;
       break;
-    case 5: gsl_vector_set(x, 0, (params->V_psi2[0])); 
-      F.f = &KL_V_psi2;
-      F.df = &gr_KL_V_psi2;
-      F.fdf = &psi2_fdf;
+    case 5: gsl_vector_set(x, 0, (params->V_psi2_n[*params->p])); 
+      F.f = &KL_V_psi2_n;
+      F.df = &gr_KL_V_psi2_n;
+      F.fdf = &psi2_n_fdf;
+      break;
+    case 7: gsl_vector_set(x, 0, (params->V_psi2_e[*params->p])); 
+      F.f = &KL_V_psi2_e;
+      F.df = &gr_KL_V_psi2_e;
+      F.fdf = &psi2_e_fdf;
       break;
     default: gsl_vector_set(x, 0, 6);
       break;
@@ -101,7 +117,9 @@ void optim()
   while (status == GSL_CONTINUE && iter < *max_iter);
   switch (flag)
     {
-    case 0: params->V_xi[*params->p] = gsl_vector_get (s->x, 0); 
+    case 0: params->V_xi_n[*params->p] = gsl_vector_get (s->x, 0); 
+      break;
+    case 6: params->V_xi_e[*params->p] = gsl_vector_get (s->x, 0); 
       break;
     case 1: 
       for (dd=0; dd<*params->D; dd++) 
@@ -116,7 +134,9 @@ void optim()
       break;
     case 4: params->V_nu[*params->g] = (gsl_vector_get (s->x, 0)); 
       break;
-    case 5: params->V_psi2[*params->p] = (gsl_vector_get (s->x, 0)); 
+    case 5: params->V_psi2_n[*params->p] = (gsl_vector_get (s->x, 0)); 
+      break;
+    case 7: params->V_psi2_e[*params->p] = (gsl_vector_get (s->x, 0)); 
       break;
     }
   gsl_multimin_fdfminimizer_free (s);
