@@ -41,9 +41,6 @@ literature, having been modeled by Holland and Leinhardt
 and Fienberg, Meyer, and Wasserman (1981), Hoff, Raftery, and Handcock
 (2002), etc.
 This is only a small piece of the data collected by Sampson.
-
-For additional examples of \code{network}s see the \code{netdata}
-package which is part of the \code{statnet} package.
 }
 \usage{
  data(sampson)

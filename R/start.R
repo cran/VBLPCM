@@ -145,8 +145,8 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     }
   if (d>1) 
     {
-    fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="VII"),initial_V_z)
-    } else fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="V"),initial_V_z)
+    fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="VII"),initial_V_z)
+    } else fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="V"),initial_V_z)
   if (is.null(fitmc$bic))
     {
     print("Couldn't fit initial clustering using mclust")
@@ -155,8 +155,8 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     G=1
     if (d>1) 
       {
-      fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="VII"),initial_V_z)
-      } else fitmc<-summary(EMclust(initial_V_z,G=G,modelNames="V"),initial_V_z)
+      fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="VII"),initial_V_z)
+      } else fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="V"),initial_V_z)
     }
   initial_V_eta<-t(fitmc$parameter$mean)
   initial_V_omega2<-c(t(fitmc$parameter$variance$sigmasq)) # for use with EII
