@@ -119,10 +119,10 @@ expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
 ### find the least probable link that does in fact occur ###
 expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 
-### run a bigger example, using the likelihood sampler set to 0.2 ###
+### run a bigger example, using the likelihood sampler set to 0.1 ###
 data(aids,package="VBLPCM")
-v.start<-vblpcmstart(aids.net,G=7,model="rsender")
-v.fit<-vblpcmfit(v.start, STRAT=0.2)
+v.start<-vblpcmstart(aids.net,G=7,model="rsender",LSTEPS=5e2)
+v.fit<-vblpcmfit(v.start, STRAT=0.1,STEPS=20)
 ### plot the mean posterior positions ###
 plot(v.fit, R2=0.1,main="Aids Blogs with Sender Random Effects")
 

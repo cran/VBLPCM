@@ -1,4 +1,5 @@
-dfe1234ffc6159d8bc4cb879c2f68781 *DESCRIPTION
+610758964d2dd667e7cfea9ffb249d34 *CHANGELOG
+a26299c31e6add62ae56c67ac68f3596 *DESCRIPTION
 6066c73622b7572e7b444b0f1070c9cb *NAMESPACE
 0ad99e90eeb440d8ce2350ebb220d2aa *R/KL.R
 39bb7b6e908f3d787f79b01ef2f4dfa3 *R/VBLPCM.R
@@ -11,7 +12,7 @@ b2971e93430601290bc92758c8587c1f *R/gof.vblpcm.R
 4f34bb8f64709bfd1f77f32e38d202c0 *R/predict.R
 203861162888e86a84e9b20d62f2d8ba *R/print.vblpcm.R
 32ef7505c44b2245b165b30aa1ebf816 *R/roc.R
-2acb40309ab1d6f67d2c28bd86f73f7a *R/start.R
+fffb5665e0d76820065b068cb9cc3acd *R/start.R
 4f69c86b26fbc64b90e83eb39a6ac450 *R/summarise_groups.R
 1c1489335fb6f8be56280af5240adaf6 *R/summary.vblpcm.R
 647c54e4383eed4d7bf283ee020e968c *R/vb_bic.R
@@ -23,7 +24,7 @@ b2971e93430601290bc92758c8587c1f *R/gof.vblpcm.R
 1276843b63a1602933616b872ee9317f *data/simulated.network.rda
 4ccabdb12a6c7592d26cceab34755ee0 *man/E_to_Y.Rd
 62b220ff6a4b95449f21d7eabbbd5848 *man/VBLPCM-internal.Rd
-4db2abb48ae00cc3dde11aab8104e820 *man/VBLPCM-package.Rd
+dc8e2243fb722fa471c6f2b3c82a1fec *man/VBLPCM-package.Rd
 1d21ac5b8c3d8909d4782465e94cec14 *man/Y_to_E.Rd
 b08842a305ad02114fee7ce021dbf4d5 *man/Y_to_M.Rd
 722b273c922c4daaccf40eb94c0776a7 *man/Y_to_nonE.Rd
@@ -35,7 +36,7 @@ e8cb13745bc8110e00fd70d8b67f98a7 *man/log_like_forces.Rd
 65d65a84e27489040342eabeadb09d26 *man/plot.vblpcm.Rd
 8e9b57714508a170b5d11ae4472b27a9 *man/predict.vblpcm.Rd
 ebf0dedf3bb3c17568c54f79d34b752d *man/print.vblpcm.Rd
-ca7266e009f2abc53b8256e28e55d427 *man/sampson.Rd
+6e2b9aa81742ce41f558357e3d0dc524 *man/sampson.Rd
 1d1c511715c82a3261f3d548fdf31e49 *man/simulated.network.Rd
 e77ae23391ebacc4c3394ea97a7b9c4e *man/summary.vblpcm.Rd
 9b07344bce55dd7bd95a1a3bbbe86081 *man/vblpcmBIC.Rd
