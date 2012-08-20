@@ -299,9 +299,9 @@ void Rf_VB_bbs(int *steps,
     d_vector[6]=diff_max(V_nu, old_nu, *G);
     } else d_vector[6] = 0.0;
   R_CheckUserInterrupt();
-  if (*P_n > 0)
+  if (d_vector[7])
     {
-    if (d_vector[7])
+    if (*P_n > 0)
       {
       flag=0;
       memcpy(old_xi_n, V_xi_n, *P_n* *N*sizeof(double));
@@ -332,24 +332,27 @@ void Rf_VB_bbs(int *steps,
        for (i=0; i<*N; i++)
          V_xi_n[i* *params->P_n+ *params->p]=(V_xi_n[i* *params->P_n+ *params->p]*sqrt(V_psi2_n[*params->p]))/tmp;
         }
+      d_vector[7]=diff_max(V_xi_n, old_xi_n, *P_n* *N);
       }
-    d_vector[7]=diff_max(V_xi_n, old_xi_n, *P_n* *N);
-    flag=6;
-    memcpy(old_xi_e, V_xi_e, *P_e*sizeof(double));
-    sample_permutation(*P_e, samp_coeffs_e, params->seed);
-    for (p=0;p<*P_e;p++) 
+    if (*P_e > 0)
       {
-      params->p=&samp_coeffs_e[p];
-      lim[0]=-1.0e2; lim[1]=1.0e2;
-      bb(lim, tol);
+      flag=6;
+      memcpy(old_xi_e, V_xi_e, *P_e*sizeof(double));
+      sample_permutation(*P_e, samp_coeffs_e, params->seed);
+      for (p=0;p<*P_e;p++) 
+        {
+        params->p=&samp_coeffs_e[p];
+        lim[0]=-1.0e2; lim[1]=1.0e2;
+        bb(lim, tol);
+        }
+      tmp=diff_max(V_xi_e, old_xi_e, *P_e);
+      d_vector[7]=(tmp>d_vector[7] ? tmp : d_vector[7]);
       }
-    tmp=diff_max(V_xi_e, old_xi_e, *P_e);
-    d_vector[7]=(tmp>d_vector[7] ? tmp : d_vector[7]);
     } else d_vector[7] = 0.0;
   R_CheckUserInterrupt();
-  if (*P_n > 0)
+  if (d_vector[8] > *tol)
     {
-    if (d_vector[8] > *tol)
+    if (*P_n > 0)
       {
       flag=5;
       memcpy(old_psi2_n, V_psi2_n, *P_n*sizeof(double));
@@ -359,19 +362,22 @@ void Rf_VB_bbs(int *steps,
         lim[0]=1.0e-8; lim[1]=1.0e1;
         bb(lim, tol); 
         }
+      d_vector[8]=diff_max(V_psi2_n, old_psi2_n, *P_n);
       }
-    d_vector[8]=diff_max(V_psi2_e, old_psi2_e, *P_e);
-    flag=7;
-    memcpy(old_psi2_e, V_psi2_e, *P_e*sizeof(double));
-    sample_permutation(*P_e, samp_coeffs_e, params->seed);
-    for (p=0;p<*P_e;p++) 
+    if (*P_e > 0)
       {
-      params->p=&samp_coeffs_e[p];
-      lim[0]=1.0e-8; lim[1]=1.0e1;
-      bb(lim, tol); 
+      flag=7;
+      memcpy(old_psi2_e, V_psi2_e, *P_e*sizeof(double));
+      sample_permutation(*P_e, samp_coeffs_e, params->seed);
+      for (p=0;p<*P_e;p++) 
+        {
+        params->p=&samp_coeffs_e[p];
+        lim[0]=1.0e-8; lim[1]=1.0e1;
+        bb(lim, tol); 
+        }
+      tmp=diff_max(V_psi2_e, old_psi2_e, *P_e);
+      d_vector[8]=(tmp>d_vector[8] ? tmp : d_vector[8]);
       }
-    tmp=diff_max(V_psi2_e, old_psi2_e, *P_e);
-    d_vector[8]=(tmp>d_vector[8] ? tmp : d_vector[8]);
     } else d_vector[8] = 0.0;
   
   if ( (d_vector[0] < *tol) && (d_vector[1] < *tol) && (d_vector[2] < *tol) && (d_vector[3] < *tol) && 
