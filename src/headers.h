@@ -9,8 +9,8 @@
 #define MIN(a,b) ((a) < (b) ? (a) : (b)) 
 
 #define SUBSET N // for KL_funcs
-#define STRATSUB1 MAX((int)(*params->NnonE* *params->STRAT),1)
-#define STRATSUB2 MAX((int)(Nnon* *params->STRAT),1)
+#define NC1 MIN(*params->NnonE, *params->NC)
+#define NC2 MIN(Nnon, *params->NC)
 
 typedef struct 
 {
@@ -58,7 +58,7 @@ typedef struct
   double *inv_sigma02;
   int *flag;
   int *model;
-  double *STRAT;
+  int *NC;
   double *seed;
   int *conv;
   }Rf_params;  

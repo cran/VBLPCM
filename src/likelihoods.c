@@ -19,13 +19,14 @@ double logistic_log_like()
         tmp += pow (params->V_z[i* *params->D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1)* *params->D + d], 2.0);
       tmp = SQRT (tmp + *params->D*(params->V_sigma2[i] + params->V_sigma2[params->hopslist[i*(CONST+diam+N)+j]-1]));
       cov=0.0; cov2=0.0;
-      for (p=0;p<P_n;p++)
-        {
-        cov += params->V_xi_n[i*P_n+p]*params->XX_n[i*P_n + p] + 
-	       params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	       params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p];
-        cov2+= params->V_psi2_n[p]*(params->XX_n[i*P_n + p]+params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p]);
-        }
+      if (P_n>0)
+        for (p=0;p<P_n;p++)
+          {
+          cov += params->V_xi_n[i*P_n+p]*params->XX_n[i*P_n + p] + 
+	         params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
+	         params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p];
+          cov2+= params->V_psi2_n[p]*(params->XX_n[i*P_n + p]+params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p]);
+          }
       for (p=0;p<*params->P_e;p++)
         {
         cov += params->V_xi_e[p]*params->XX_e[(i*N + params->hopslist[i*(CONST+diam+N)+j]-1)* *params->P_e + p];
@@ -41,7 +42,7 @@ double logistic_log_like()
         {
         sample_nodes = calloc(Nnon, sizeof(int));
         sample_permutation(Nnon, sample_nodes, params->seed);
-        for (k=0;k<STRATSUB2;k++)  // loop over some of the non-edges
+        for (k=0;k<NC2;k++)  // loop over some of the non-edges
           {
           j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
           tmp = 0.0;
@@ -60,7 +61,7 @@ double logistic_log_like()
             cov += params->V_xi_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
             cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
             }
-          log_like += -Nnon/(STRATSUB2)*log(1.0+exp(cov+0.5*cov2-tmp));
+          log_like += -Nnon/(NC2)*log(1.0+exp(cov+0.5*cov2-tmp));
           }
         hsum += Nnon;
         free(sample_nodes);
@@ -93,7 +94,7 @@ double logistic_log_like()
       log_like += -tmp - log(1.0+exp(cov+0.5*cov2-tmp));
       }
     sample_permutation(*params->NnonE, sample_non_edges, params->seed);
-    for (j=0;j<STRATSUB1;j++) // loop over STRATSUB1 of the non-edges
+    for (j=0;j<NC1;j++) // loop over NC1 of the non-edges
       {
       i=sample_non_edges[j];
       tmp = 0.0;
@@ -115,7 +116,7 @@ double logistic_log_like()
         cov += params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* *params->P_e + p];
         cov2+= params->V_psi2_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* *params->P_e + p];
         }
-      log_like += -*params->NnonE/STRATSUB1*log(1.0+exp(cov+0.5*cov2-tmp));
+      log_like += -*params->NnonE/NC1*log(1.0+exp(cov+0.5*cov2-tmp));
       }
     free(sample_non_edges);
     }

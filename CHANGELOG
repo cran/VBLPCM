@@ -1,3 +1,4 @@
-2012/07    changed to mclustBIC in vblpcmstart function for compatibility with mclust 4
+2012/08    fixed bugs in handling of nodal covariates and cast same as sender, receiver or social. 
+2012/08    working startup message. 
 2012/08    fixed V_xi_e and V_psi2_e update bug (thanks to Sebastian Leist). 
-2012/08    working startup message
+2012/07    changed to mclustBIC in vblpcmstart function for compatibility with mclust 4. 

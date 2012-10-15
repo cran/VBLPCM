@@ -8,7 +8,8 @@ to a user-supplied (default is NULL) edge covariates matrix of size N^2 rows and
 C is the number of covariates. Node covariates may be converted to difference-between-pairs for
 edges. 
 }
-\usage{vblpcmcovs(N, model, Y, edgecovs=NULL, nodecovs=NULL)
+\usage{vblpcmcovs(N, model, Y, edgecovs=NULL, sendcovs=NULL, receivecovs=NULL,
+                  socialcovs=NULL)
 }
 \arguments{
   \item{N}{number of nodes
@@ -19,7 +20,11 @@ edges.
 }
   \item{edgecovs}{optional additional covariate / attribute data on the edges
 }
-  \item{nodecovs}{optional additional covariate / attribute data on the nodes
+  \item{sendcovs}{optional additional covariate / attribute data on the nodes for links out
+}
+  \item{receivecovs}{optional additional covariate / attribute data on the nodes for links in
+} 
+  \item{socialcovs}{optional additional covariate / attribute data on the nodes for links in and out
 }
 }
 \details{Can be used to construct design matrices with edge covariates or node covariates 
