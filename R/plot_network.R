@@ -54,8 +54,6 @@ plot.vblpcm<-function(x, ..., R2=0.2, main="Variational-Bayes Positions", alpha=
         }
       }
     }
-  #XLIM=c(min(V_z_2D[apply(Y,2,sum,na.rm=1)>0,1]),max(V_z_2D[apply(Y,2,sum,na.rm=1)>0,1]))
-  #YLIM=c(min(V_z_2D[apply(Y,2,sum,na.rm=1)>0,2]),max(V_z_2D[apply(Y,2,sum,na.rm=1)>0,2]))
   XLIM=c(min(V_z_2D[,1]),max(V_z_2D[,1]))
   YLIM=c(min(V_z_2D[,2]),max(V_z_2D[,2]))
   XLIM=XLIM*1.1
@@ -71,9 +69,9 @@ plot.vblpcm<-function(x, ..., R2=0.2, main="Variational-Bayes Positions", alpha=
   pie.order <- order(piesize, decreasing = TRUE)
   vertex.cex=0 
   if (model!="plain") vertex.cex=piesize*3.5 else vertex.cex=(piesize*diff(XLIM))/10
-  plot.network(network(Y), coord = V_z_2D, main = main,
-               xlab=expression(Z[1]), ylab=expression(Z[2]), xlim = XLIM, ylim = YLIM, 
-  	     suppress.axes = 0, edge.col = rgb(t(rep(190/255,3)),alpha=alpha), vertex.cex=vertex.cex, vertex.col=NULL)
+  plot.network(x$net, coord = V_z_2D, main = main,
+               xlim = XLIM, ylim = YLIM, 
+  	       suppress.axes = 0, edge.col = rgb(t(rep(190/255,3)),alpha=alpha), vertex.cex=vertex.cex, vertex.col=NULL, ...)
   # add unknown links to plot
   for (i in 1:N)
     for (j in 1:N)

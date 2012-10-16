@@ -1,29 +1,59 @@
 # functions for calculating adjacency matrices, edges, non-edges, etc from each other
 #source("adjacency_to_edges.R") 
 vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
-                       lcc=TRUE,edgecovs=NULL,nodecovs=NULL,START="FR", seed=0)
+                       lcc=TRUE,edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,socialcovs=NULL,START="FR", seed=0)
   {
   if (!is.nan(seed))
     set.seed(seed) # use this to seed the random number generator in R
-  directed=is.directed(g.network)
+  directed<-is.directed(g.network)
   if (!(model=="plain" | model=="rsender" | model=="rreceiver" | model=="rsocial"))
     {
     print("Error: unknown model") 
     print("Defaulting to plain model without social effects") 
     print("see vblpcmcovs for details") 
-    model="plain"
+    model<-"plain"
     }
   if (!directed & (model=="rsender" | model=="rreceiver"))
     {
     print("Error: Model with directed effects cannot be applied to an undirected network") 
     print("Defaulting to plain model without social effects") 
-    model="plain"
+    model<-"plain"
     }
+  if (!directed & !is.null(sendcovs))
+    {
+    print("Error: Model with sender nodal covariates cannot be applied to an undirected network") 
+    print("Defaulting to model without sender nodal covariates") 
+    sendcovs<-NULL
+    }
+  if (!directed & !is.null(receivecovs))
+    {
+    print("Error: Model with receiver nodal covariates cannot be applied to an undirected network") 
+    print("Defaulting to model without receiver nodal covariates") 
+    receivecovs<-NULL
+    }
+  if (!is.null(sendcovs) & !is.matrix(sendcovs))
+      {
+      print("Please specify the sender covariates as a matrix with N rows")
+      print("running model without sender covariates")
+      sendcovs<-NULL
+      } 
+  if (!is.null(receivecovs) & !is.matrix(receivecovs))
+      {
+      print("Please specify the receiver covariates as a matrix with N rows")
+      print("running model without receiver covariates")
+      receivecovs<-NULL
+      } 
+  if (!is.null(socialcovs) & !is.matrix(socialcovs))
+      {
+      print("Please specify the social covariates as a matrix with N rows")
+      print("running model without social covariates")
+      socialcovs<-NULL
+      } 
   if (lcc)
     {
     all_g.network<-g.network
     # only look at largest connected component
-    N=all_g.network$gal$n
+    N<-all_g.network$gal$n
     # can't have unknown links for the components function to work
     tmp<-as.sociomatrix(g.network)+t(as.sociomatrix(g.network))
     tmp[tmp>1]<-1
@@ -32,20 +62,27 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     # leads to stack overflow in some cases:
     #g.network<-get.inducedSubgraph(all_g.network,(1:N)[component.largest(tmp)]) 
     # safer:
+    if (!is.null(sendcovs))
+      sendcovs<-as.matrix(sendcovs[tmp,])
+    if (!is.null(receivecovs))
+      receivecovs<-as.matrix(receivecovs[tmp,])
+    if (!is.null(socialcovs))
+      socialcovs<-as.matrix(socialcovs[tmp,])
     g.network<-network(as.sociomatrix(all_g.network)[(1:N)[tmp],(1:N)[tmp]],directed=is.directed(all_g.network))
     for (att in list.vertex.attributes(all_g.network))
       set.vertex.attribute(g.network,att,get.vertex.attribute(all_g.network,att)[tmp])
     rm(all_g.network)
     }
   
-  N=g.network$gal$n
-  NE=network.edgecount(g.network)
+  N<-g.network$gal$n
+  NE<-network.edgecount(g.network)
   Y<-as.sociomatrix(g.network)
   E<-Y_to_E(N,NE,g.network$gal$directed,Y)
   nonE<-Y_to_nonE(N, directed, Y)
-  NnonE=nrow(nonE)
+  NnonE<-nrow(nonE)
+  NC<-NnonE
   M<-Y_to_M(N, directed, Y)
-  NM=nrow(M)
+  NM<-nrow(M)
   # create edge/non-edge matrix for all nodes
   EnonE<-matrix(NaN,N,N)
   numedges<-matrix(NaN,N,2) # columns are #edges and #non-links
@@ -67,16 +104,16 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   # followed by all nodes grouped and ordered by this.
   hopslist<-hops_to_hopslist(hops,diam,N) 
   # create covariates design matrix
-  XX<-vblpcmcovs(N,model,Y,edgecovs,nodecovs)
+  XX<-vblpcmcovs(N,model,Y,edgecovs,sendcovs,receivecovs,socialcovs)
   XX_n<-XX$XX_n
   XX_e<-XX$XX_e
-  P_n=ncol(XX_n)
+  P_n<-ncol(XX_n)
   if (is.null(P_n))  
     {
-    P_n=0
-    XX_n=0
+    P_n<-0
+    XX_n<-0
     }
-  P_e=ncol(XX_e)
+  P_e<-ncol(XX_e)
   
   # variational parameters are: 
   #1. V_z 
@@ -90,8 +127,8 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   #9. V_psi2
   # initialise variational parameters
   
-  sigma02=0.125
-  inv_sigma02=1/sigma02
+  sigma02<-0.125
+  inv_sigma02<-1/sigma02
   
   if (START=="random")
     X<-matrix(runif(N*d,-2*d,2*d),ncol=d) # may lead to local minima
@@ -102,7 +139,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     Tinv<-diag(degree(g.network)^-0.5)
     Tinv[is.infinite(Tinv)]<-0
     tmpY<-Y
-    tmpY[is.nan(Y)]<-0
+    tmpY[is.na(Y)]<-0
     L<-Tinv%*%(diag(degree(g.network))-tmpY%*%t(tmpY))%*%Tinv
     X<-jitter(cmdscale(L,k=d)) 
     }
@@ -119,7 +156,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     delete<-seq(from=1, to=N*N, by=(N+1))
     y<-c(Y)[-delete]# logistic regression
     tmpx<- c(as.matrix(dist(X)))[-delete]
-    p=mean(y,na.rm=1)
+    p<-mean(y,na.rm=1)
     B<-mean(tmpx)+log(p)-log(1-p) # "average distance" + log-odds(p) 
     }
   out<-log_like_forces(g.network, d, X, B, m=N, LSTEPS)
@@ -152,7 +189,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     print("Couldn't fit initial clustering using mclust")
     print("Try using a different initialisation or different number of clusters or latent space dimension")
     print("Using no groups for now")
-    G=1
+    G<-1
     if (d>1) 
       {
       fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="VII"),initial_V_z)
@@ -173,7 +210,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   initial_V_psi2<-2e0
   initial_V_alpha<-1/fitmc$parameter$variance$scale
   
-  conv_check=1
+  conv_check<-1
   
   V_z<-initial_V_z
   V_eta<-initial_V_eta
@@ -193,13 +230,13 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   V_psi2_e<-initial_V_psi2_e
   
   # priors
-  xi=0
-  mu_nought=rep(0,d)
+  xi<-0
+  mu_nought<-rep(0,d)
   # priors from latentnet package...
-  psi2=9.0e0
-  omega2=0.75
-  alpha=rep(4.5,G)*sigma02
-  nu=rep(2.5,G)
+  psi2<-9.0e0
+  omega2<-0.75
+  alpha<-rep(4.5,G)*sigma02
+  nu<-rep(2.5,G)
   ###################################
   variational.start<-list()
   seed->variational.start$seed
@@ -243,6 +280,7 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   inv_sigma02->variational.start$inv_sigma02
   BIC<-vblpcmbic(variational.start)
   BIC->variational.start$BIC
+  NC->variational.start$NC 
   class(variational.start)<-"vblpcm"
   return(variational.start)
   }

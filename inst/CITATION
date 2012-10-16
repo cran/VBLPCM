@@ -1,0 +1,17 @@
+citHeader("To cite package 'VBLPCM' in publications use:")
+     
+     citEntry(entry="Article",
+              title = "Variational Bayesian Inference for the Latent Position Cluster Model",
+              author = personList(as.person("Michael Salter-Townshend"),
+                                  as.person("Thomas Brendan Murphy")),
+              year = "2013",
+              journal = "Computational Statistics and Data Analysis",     
+              volume = 57,
+              number = 1,
+              pages = "661-671",
+              textVersion =
+              paste("Michael Salter-Townshend and Thomas Brendan Murphy (2013)",
+    "Variational Bayesian Inference for the Latent Position Cluster Model",
+            "Computational Statistics and Data Analysis", 
+             "57:1:661-671",  sep=" "))
+

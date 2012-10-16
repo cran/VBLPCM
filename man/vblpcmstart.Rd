@@ -7,7 +7,8 @@ variational method. There are returned as a list and that list may be passed dir
 vblpcmfit(). User specification of the configuration is recommended as tweaks to this list only. 
 }
 \usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=5e3,model="plain", CLUST=0, 
-           lcc=TRUE, edgecovs=NULL,nodecovs=NULL,START="FR", seed=0)
+           lcc=TRUE, edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,
+           socialcovs=NULL,START="FR", seed=0)
 }
 \arguments{
   \item{g.network}{a network object
@@ -27,11 +28,16 @@ vblpcmfit(). User specification of the configuration is recommended as tweaks to
 }
 \item{edgecovs}{optional edge covariates.
 }
-\item{nodecovs}{optional node covariates.
+\item{sendcovs}{optional sender node covariates.
+}
+\item{receivecovs}{optional receiver node covariates.
+}
+\item{socialcovs}{optional sociality node covariates.
 }
 \item{START}{what to start the initial positions with. 
                 "FR" for Fruchterman-Reingold. 
                 "geodesic" for geodesic distances.
+		"laplace" for using the Graph Laplacian.
                 "random" for random. 
 }
 \item{seed}{Optional seed for the random number generator in R. Equivalent to using set.seed(seed). 

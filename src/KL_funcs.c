@@ -53,7 +53,7 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
               (1.0 - 1.0/(1.0 + exp (-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5 * cov2)));
     }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
-  for (j=0;j<STRATSUB1;j++) // loop over a sample of the non-edges
+  for (j=0;j<NC1;j++) // loop over a sample of the non-edges
     {
     i=sample_non_edges[j];
     cov = params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p];
@@ -65,7 +65,7 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
       cov2+= params->V_psi2_n[pn]*
             (params->XX_n[(params->nonE[i*2]-1)* P_n+pn]+params->XX_n[(params->nonE[i*2+1]-1)* P_n+pn]);
       }
-    tmpsum += *params->NnonE/STRATSUB1*(params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p]*
+    tmpsum += *params->NnonE/NC1*(params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p]*
                 (- 1.0/(1.0 + exp (-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5 * cov2))));
       }
   KL = tmpsum - 0.5*fabs(params->V_xi_e[p] - *params->xi) / *params->psi2;
@@ -104,7 +104,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
-      for (k=0;k<STRATSUB2;k++)  // loop over some of the non-edges
+      for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
         cov = params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + params->V_xi_n[j*P_n+p]* params->XX_n[j* P_n + p];
@@ -114,7 +114,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
           cov += params->V_xi_e[pe]*params->XX_e[(i*N + j)* P_e + pe];
           cov2+= params->V_psi2_e[pe]*params->XX_e[(i*N + j)* P_e + pe];
           }
-        tmpsum += Nnon/STRATSUB2*(- 1.0/(1.0 + exp (-cov + params->dists[i*N + j] - 0.5 * cov2)));
+        tmpsum += Nnon/NC2*(- 1.0/(1.0 + exp (-cov + params->dists[i*N + j] - 0.5 * cov2)));
         }
       hsum += Nnon;
       free(sample_nodes);
@@ -191,13 +191,14 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
       tmp += pow(params->V_z[i * D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1) * D + d], 2.0);
     tmp = SQRT(tmp + D *(params->V_sigma2[i] + params->V_sigma2[(params->hopslist[i*(CONST+diam+N)+j]-1)]));
     cov=0.0; cov2=0.0;
-    for (p=0;p<P_n;p++)
-      {
-      cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + 
-             params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	     params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p];
-      cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p] + params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p]);
-      }
+    if (P_n > 0)
+      for (p=0;p<P_n;p++)
+        {
+        cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + 
+               params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
+	       params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p];
+        cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p] + params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p]);
+        }
     for (p=0;p<*params->P_e;p++)
       {
       cov += params->V_xi_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
@@ -215,7 +216,7 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
-      for (k=0;k<STRATSUB2;k++)  // loop over some of the non-edges
+      for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
         tmp = 0.0;
@@ -223,18 +224,19 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
           tmp += pow(params->V_z[i * D + d] - params->V_z[j * D + d], 2.0);
         tmp = SQRT(tmp + D *(params->V_sigma2[i] + params->V_sigma2[j]));
         cov=0.0; cov2=0.0;
-        for (p=0;p<P_n;p++)
-          {
-          cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + params->V_xi_n[j*P_n+p]*params->XX_n[j* P_n + p];
-          cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p]+params->XX_n[j* P_n + p]);
-          }
+        if (P_n > 0)
+          for (p=0;p<P_n;p++)
+            {
+            cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + params->V_xi_n[j*P_n+p]*params->XX_n[j* P_n + p];
+            cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p]+params->XX_n[j* P_n + p]);
+            }
         for (p=0;p<*params->P_e;p++)
           {
           cov += params->V_xi_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
           cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
           }
         for (d=0; d<D; d++)
-            tmpsum[d] +=  Nnon/STRATSUB2*(
+            tmpsum[d] +=  Nnon/NC2*(
                           (params->V_z[i * D + d] - params->V_z[j * D + d]) *
                           (- 1.0/(1.0+exp(-cov + tmp - 0.5*cov2))));
         }
@@ -340,7 +342,7 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
-      for (k=0;k<STRATSUB2;k++)  // loop over some of the non-edges
+      for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
         tmp = 0.0;
@@ -359,7 +361,7 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
           cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
           }
           tmp = SQRT (tmp + D * (V_sigma2_i + params->V_sigma2[j]));
-          tmpsum = tmpsum + Nnon/STRATSUB2*(D / (V_sigma2_i * (1.0 + exp (-cov + tmp - 0.5 * cov2))));
+          tmpsum = tmpsum + Nnon/NC2*(D / (V_sigma2_i * (1.0 + exp (-cov + tmp - 0.5 * cov2))));
         }
       hsum += Nnon;
       free(sample_nodes);
@@ -565,7 +567,7 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
                (1.0+exp(-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5*cov2));
       }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
-  for (j=0;j<STRATSUB1;j++) // loop over a sample of the non-edges
+  for (j=0;j<NC1;j++) // loop over a sample of the non-edges
       {
       i=sample_non_edges[j];
       cov = params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p];
@@ -576,7 +578,7 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
               params->V_xi_n[(params->nonE[i*2+1]-1)*P_n+pn]*params->XX_n[(params->nonE[i*2+1]-1)* P_n + pn];
         cov2+= params->V_psi2_n[pn]*(params->XX_n[(params->nonE[i*2]-1)* P_n + pn]+params->XX_n[(params->nonE[i*2+1]-1)* P_n + pn]);
         }
-      tmp1 += *params->NnonE/STRATSUB1*(-0.5*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + *params->p]/
+      tmp1 += *params->NnonE/NC1*(-0.5*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + *params->p]/
                (1.0+exp(-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5*cov2)));
       }
   KL = tmp1 + 0.5 * (D / params->V_psi2_e[*params->p] - D / *params->psi2);
@@ -609,7 +611,7 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
     tmp1 += -0.5/(1.0+exp(-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5*cov2));
     }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
-  for (j=0;j<STRATSUB1;j++) // loop over a sample of the non-edges
+  for (j=0;j<NC1;j++) // loop over a sample of the non-edges
     {
     i=sample_non_edges[j];
     cov = params->V_xi_n[(params->nonE[i*2]-1)*P_n+p]*params->XX_n[(params->nonE[i*2]-1)* P_n + p] +
@@ -620,7 +622,7 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
       cov += params->V_xi_e[pe]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + pe];
       cov2+= params->V_psi2_e[pe]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + pe];
       }
-    tmp1 += *params->NnonE/STRATSUB1*(-0.5/(1.0+exp(-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5*cov2)));
+    tmp1 += *params->NnonE/NC1*(-0.5/(1.0+exp(-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5*cov2)));
     }
   KL = tmp1 + 0.5 * (D / params->V_psi2_n[*params->p] - D / *params->psi2);
   gsl_vector_set(df, 0, -KL);
@@ -681,7 +683,7 @@ void KL_total (int *P_n,
   double *alpha,
   double *inv_sigma02,
   double *dists,
-  double *STRAT,
+  int *NC,
   double *KL)
 { 
   int p, i, g, d, flag=0;
@@ -730,7 +732,7 @@ void KL_total (int *P_n,
   params->alpha=alpha;
   params->inv_sigma02=inv_sigma02;
   params->dists=dists;
-  params->STRAT=STRAT;
+  params->NC=NC;
   flag=0;
   // p1
   *KL = loglikefunc(); 

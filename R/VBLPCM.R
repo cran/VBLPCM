@@ -1,7 +1,14 @@
-vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, STRAT=1, seed=0, d_vector=rep(TRUE,9))
+vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL, seed=0, d_vector=rep(TRUE,9))
   {
   if (length(d_vector)!=9)
     stop("You must supply a d_vector of length 9. Please refer to the help file for vblpcmfit\n")
+  if (!is.null(NC))
+    {
+    NC<-as.integer(NC)
+    if (NC==0)
+      stop("Cannot use zero controls per case\n")
+    cat("Using ", NC, "controls per case in case-control sampler\n")
+    }
   P_n<-variational.start$P_n
   P_e<-variational.start$P_e
   model<-variational.start$model
@@ -9,6 +16,8 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, STRAT=1,
   N<-variational.start$N
   NE<-variational.start$NE
   NnonE<-variational.start$NnonE
+  if (is.null(NC))
+    NC<-NnonE # use all non-edges
   NM<-variational.start$NM
   G<-variational.start$G
   Y<-variational.start$Y
@@ -51,7 +60,7 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, STRAT=1,
            V_omega2=as.double(V_omega2), V_nu=as.double(V_nu), V_alpha=as.double(V_alpha),
            xi=as.double(xi), psi2=as.double(psi2), sigma02=as.double(sigma02),
            omega2=as.double(omega2), nu=as.double(nu), alpha=as.double(alpha),
-           inv_sigma02=as.double(inv_sigma02), tol=as.double(tol), STRAT=as.double(STRAT), 
+           inv_sigma02=as.double(inv_sigma02), tol=as.double(tol), NC=as.integer(NC), 
 	   seed=as.double(seed), d_vector=as.double(d_vector), conv=as.integer(conv),
 	   PACKAGE="VBLPCM")
   
@@ -109,7 +118,7 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, STRAT=1,
   nu->variational.params$nu
   alpha->variational.params$alpha
   inv_sigma02->variational.params$inv_sigma02
-  STRAT->variational.params$STRAT
+  NC->variational.params$NC
   as.logical(out$conv)->variational.params$conv
   seed->variational.params$seed # this is the original seed value, not the value the RNG is now using
   BIC<-vblpcmbic(variational.params)

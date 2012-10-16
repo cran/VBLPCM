@@ -66,7 +66,7 @@ void Rf_VB_bbs(int *steps,
   double *alpha,
   double *inv_sigma02,
   double *tol,
-  double *STRAT,
+  int *NC,
   double *seed,
   double *d_vector,
   int *conv)
@@ -117,7 +117,7 @@ void Rf_VB_bbs(int *steps,
   params->alpha=alpha;
   params->inv_sigma02=inv_sigma02;
   params->dists=calloc(*N* *N, sizeof(double));
-  params->STRAT=STRAT;
+  params->NC=NC;
   params->seed=seed;
   params->conv=conv;
   int *samp_nodes = calloc(*N, sizeof(int));

@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 2.0\cr
-Date: \tab 2012-02-05\cr
+Version: \tab 2.3\cr
+Date: \tab 2012-08-25\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }
@@ -33,10 +33,10 @@ We also provide four choices of model; these are "plain" and three with random n
 For undirected networks only "plain" or "rsocial" may be chosen. 
 }
 \references{
-Michael Salter-Townshend and Thomas Brendan Murphy (2009).
+Michael Salter-Townshend and Thomas Brendan Murphy (2013).
 "Variational Bayesian Inference for the Latent Position Cluster Model."
-Workshop on Analyzing Networks and Learning with Graphs. 
-Neural Information Processing Systems. 
+Computational Statistics and Data Analysis, volume 57, number 1, pages 661-671.
+DOI=10.1016/j.csda.2012.08.004
 
 
 Pavel N. Krivitsky and Mark S. Handcock (2008). 
@@ -45,13 +45,15 @@ Journal of Statistical Software, number 5, volume 24, pages 1-23.
 
 
 Mark S. Handcock, Adrian E. Raftery and Jeremy Tantrum (2007).
-     "Model-Based Clustering for Social Networks."  
-     Journal of the Royal Statistical Society: Series A (Statistics in Society), 170(2), 301-354.
+"Model-Based Clustering for Social Networks."  
+Journal of the Royal Statistical Society: Series A (Statistics in Society), 170(2), 301-354.
 
 
-Adrian Raftery, Xiaoyue Niu, Peter Hoff and Ka Yee Yeung (2010). 
+Adrian Raftery, Xiaoyue Niu, Peter Hoff and Ka Yee Yeung (2012). 
 "Fast Inference for the Latent Space Network Model Using a Case-Control Approximate Likelihood."
-University of Washington, Department of Statistics, Technical Report 572. 
+Journal of Computational and Graphical Statistics. 
+doi: 10.1080/10618600.2012.679240 
+
 
 Sucharita Gopal (2007). 
 "The Evolving Social Geography of Blogs"
@@ -120,12 +122,14 @@ expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
 expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 
 ### run a bigger example, using the likelihood sampler set to 0.1 ###
-data(aids,package="VBLPCM")
-v.start<-vblpcmstart(aids.net,G=7,model="rsender",LSTEPS=5e2)
-v.fit<-vblpcmfit(v.start, STRAT=0.1,STEPS=20)
+### not run
+##  data(aids,package="VBLPCM")
+##  v.start<-vblpcmstart(aids.net,G=7,model="rsender")
+##  use the case-control sampler with 10 controls per case
+##  v.fit<-vblpcmfit(v.start,NC=10)
 ### plot the mean posterior positions ###
-plot(v.fit, R2=0.1,main="Aids Blogs with Sender Random Effects")
+##  plot(v.fit, R2=0.1,main="Aids Blogs with Sender Random Effects")
 
 ### Use ROC / AUC to get a measure of model fit to the data ###
-vblpcmroc(v.fit)
+##  vblpcmroc(v.fit)
 }
