@@ -6,7 +6,7 @@
 variational method. There are returned as a list and that list may be passed directly to
 vblpcmfit(). User specification of the configuration is recommended as tweaks to this list only. 
 }
-\usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=5e3,model="plain", CLUST=0, 
+\usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=5e3,model="plain", CLUST=0, B=NULL,
            lcc=TRUE, edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,
            socialcovs=NULL,START="FR", seed=0)
 }
@@ -22,6 +22,8 @@ vblpcmfit(). User specification of the configuration is recommended as tweaks to
   \item{model}{model specified as "plain", "rreceiver", "rsender" or "rsocial". See vblpcmcovs for details. 
 }
   \item{CLUST}{degree of push to clustering at the start
+}
+  \item{B}{default intercept value
 }
   \item{lcc}{logical indicator. TRUE => analyze largest connected component 
   of g.network only FALSE => analyze the whole network. 

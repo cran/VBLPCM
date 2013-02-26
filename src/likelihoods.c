@@ -18,21 +18,39 @@ double logistic_log_like()
       for (d = 0; d < *params->D; d++)
         tmp += pow (params->V_z[i* *params->D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1)* *params->D + d], 2.0);
       tmp = SQRT (tmp + *params->D*(params->V_sigma2[i] + params->V_sigma2[params->hopslist[i*(CONST+diam+N)+j]-1]));
+      //tmp = -1.0/SQRT (tmp + *params->D*(params->V_sigma2[i] + params->V_sigma2[params->hopslist[i*(CONST+diam+N)+j]-1])); // NEW dists
+      // i->j part
       cov=0.0; cov2=0.0;
-      if (P_n>0)
-        for (p=0;p<P_n;p++)
-          {
-          cov += params->V_xi_n[i*P_n+p]*params->XX_n[i*P_n + p] + 
-	         params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	         params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p];
-          cov2+= params->V_psi2_n[p]*(params->XX_n[i*P_n + p]+params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n + p]);
-          }
+      if (*params->imodel==1)
+        cov += params->V_xi_n[i];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[i] + params->V_xi_n[N+(params->hopslist[i*(CONST+diam+N)+j]-1)];
       for (p=0;p<*params->P_e;p++)
         {
         cov += params->V_xi_e[p]*params->XX_e[(i*N + params->hopslist[i*(CONST+diam+N)+j]-1)* *params->P_e + p];
         cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + params->hopslist[i*(CONST+diam+N)+j]-1)* *params->P_e + p];
         }
-      log_like += (cov-tmp) - log(1.0+exp(cov+0.5*cov2-tmp));
+      for (p=0;p<P_n;p++)
+        cov2+= params->V_psi2_n[p];
+      log_like += (cov-tmp)*params->Y[i*N+(params->hopslist[i*(CONST+diam+N)+j]-1)] - log(1.0+exp(cov+0.5*cov2-tmp));
+      // j->i part
+      cov=0.0; cov2=0.0;
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[i];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[N+i] + params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      for (p=0;p<*params->P_e;p++)
+        {
+        cov += params->V_xi_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        cov2+= params->V_psi2_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        }
+      for (p=0;p<P_n;p++)
+        cov2+= params->V_psi2_n[p];
+      log_like += (cov-tmp)*params->Y[(params->hopslist[i*(CONST+diam+N)+j]-1)*N+i] - log(1.0+exp(cov+0.5*cov2-tmp));
       }
     hsum = 0;
     for (h=2;h<1+diam;h++) // <1+diam because we don't sample unknown edges
@@ -49,17 +67,37 @@ double logistic_log_like()
           for (d = 0; d < *params->D; d++)
             tmp += pow (params->V_z[i* *params->D + d] - params->V_z[j* *params->D + d], 2.0);
           tmp = SQRT (tmp + *params->D*(params->V_sigma2[i] + params->V_sigma2[j]));
+          //tmp = -1.0/SQRT (tmp + *params->D*(params->V_sigma2[i] + params->V_sigma2[j])); // NEW dists
+          // i->j part
           cov=0.0; cov2=0.0;
-          if (P_n > 0)
-            for (p=0;p<P_n;p++)
-              {
-              cov += params->V_xi_n[i*P_n+p]*params->XX_n[i*P_n + p] + params->V_xi_n[j*P_n+p]*params->XX_n[j*P_n + p] ;
-              cov2+= params->V_psi2_n[p]*(params->XX_n[i*P_n + p] + params->XX_n[j*P_n + p]);
-              }
+          if (*params->imodel==1)
+            cov += params->V_xi_n[i];
+          if (*params->imodel==2)
+            cov += params->V_xi_n[j];
+          if (*params->imodel==3)
+            cov += params->V_xi_n[i] + params->V_xi_n[N+j];
+          for (p=0;p<P_n;p++)
+            cov2+= params->V_psi2_n[p];
           for (p=0;p<*params->P_e;p++)
             {
             cov += params->V_xi_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
             cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
+            }
+          log_like += -Nnon/(NC2)*log(1.0+exp(cov+0.5*cov2-tmp));
+          // j->i part
+          cov=0.0; cov2=0.0;
+          if (*params->imodel==1)
+            cov += params->V_xi_n[j];
+          if (*params->imodel==2)
+            cov += params->V_xi_n[i];
+          if (*params->imodel==3)
+            cov += params->V_xi_n[N+i] + params->V_xi_n[j];
+          for (p=0;p<P_n;p++)
+            cov2+= params->V_psi2_n[p];
+          for (p=0;p<*params->P_e;p++)
+            {
+            cov += params->V_xi_e[p]*params->XX_e[(j*N + i)* *params->P_e + p];
+            cov2+= params->V_psi2_e[p]*params->XX_e[(j*N + i)* *params->P_e + p];
             }
           log_like += -Nnon/(NC2)*log(1.0+exp(cov+0.5*cov2-tmp));
           }
@@ -78,14 +116,16 @@ double logistic_log_like()
       for (d = 0; d < *params->D; d++)
         tmp += pow (params->V_z[(params->E[i*2]-1)* *params->D + d] - params->V_z[(params->E[i*2+1]-1)* *params->D + d], 2.0);
       tmp = SQRT (tmp + *params->D*(params->V_sigma2[params->E[i*2]-1] + params->V_sigma2[params->E[i*2+1]-1]));
+      //tmp = -1.0/SQRT (tmp + *params->D*(params->V_sigma2[params->E[i*2]-1] + params->V_sigma2[params->E[i*2+1]-1])); // NEW dists
       cov=0.0; cov2=0.0;
-      if (P_n > 0)
-        for (p=0;p<P_n;p++)
-          {
-          cov += params->V_xi_n[(params->E[i*2]-1)*P_n+p]*params->XX_n[(params->E[i*2]-1)*P_n + p] +
-	         params->V_xi_n[(params->E[i*2+1]-1)*P_n+p]*params->XX_n[(params->E[i*2+1]-1)*P_n + p] ;
-          cov2+= params->V_psi2_n[p]*(params->XX_n[(params->E[i*2]-1)*P_n + p] + params->XX_n[(params->E[i*2+1]-1)*P_n + p]);
-          }
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->E[i*2]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->E[i*2+1]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->E[i*2]-1)] + params->V_xi_n[N+(params->E[i*2+1]-1)];
+      for (p=0;p<P_n;p++)
+        cov2+= params->V_psi2_n[p];
       for (p=0;p<*params->P_e;p++)
         {
         cov += params->V_xi_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* *params->P_e + p];
@@ -102,15 +142,16 @@ double logistic_log_like()
         tmp += pow (params->V_z[(params->nonE[i*2]-1)* *params->D + d] - 
 	            params->V_z[(params->nonE[i*2+1]-1)* *params->D + d], 2.0);
       tmp = SQRT (tmp + *params->D*(params->V_sigma2[params->nonE[i*2]-1] + params->V_sigma2[params->nonE[i*2+1]-1]));
+      //tmp = -1.0/SQRT (tmp + *params->D*(params->V_sigma2[params->nonE[i*2]-1] + params->V_sigma2[params->nonE[i*2+1]-1])); // NEW dists
       cov=0.0; cov2=0.0;
-      if (P_n > 0)
-        for (p=0;p<P_n;p++)
-          {
-          cov += params->V_xi_n[(params->nonE[i*2]-1)*P_n+p]*params->XX_n[(params->nonE[i*2]-1)* P_n + p] +
-	         params->V_xi_n[(params->nonE[i*2+1]-1)*P_n+p]*params->XX_n[(params->nonE[i*2+1]-1)*P_n + p];
-          cov2+= params->V_psi2_n[p]*(params->XX_n[(params->nonE[i*2]-1)* P_n + p]+
-	                              params->XX_n[(params->nonE[i*2+1]-1)*P_n + p]);
-          }
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->nonE[i*2]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->nonE[i*2+1]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->nonE[i*2]-1)] + params->V_xi_n[N+(params->nonE[i*2+1]-1)];
+      for (p=0;p<P_n;p++)
+        cov2+= params->V_psi2_n[p];
       for (p=0;p<*params->P_e;p++)
         {
         cov += params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* *params->P_e + p];

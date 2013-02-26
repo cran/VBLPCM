@@ -92,7 +92,7 @@ void bb(double *lim, double *tol)
   // assign the new value
   switch (*params->flag)
     {
-    case 0: params->V_xi_n[*params->i* *params->P_n+*params->p] = gsl_vector_get (ab, 0); 
+    case 0: params->V_xi_n[*params->i+ *params->N* *params->p] = gsl_vector_get (ab, 0); 
       break;
     case 6: params->V_xi_e[*params->p] = gsl_vector_get (ab, 0); 
       break;

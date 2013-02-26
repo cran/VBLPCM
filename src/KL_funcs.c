@@ -23,7 +23,7 @@ KL_V_xi_n (const gsl_vector *v_V_xi_n)
   double tmpsum = 0.0, tmp;
   double KL;
   tmpsum = loglikefunc();
-  tmp = -pow (params->V_xi_n[*params->i* P_n+*params->p] - *params->xi, 2.0);
+  tmp = -pow (params->V_xi_n[*params->i + *params->N* *params->p] - *params->xi, 2.0);
   KL = fabs (tmpsum + 0.5*(tmp) / *params->psi2);
   //KL = fabs (tmpsum + (tmp) / *params->psi2);
   return KL;
@@ -42,13 +42,14 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
     {
     cov = params->V_xi_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p];
     cov2= params->V_psi2_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p]; 
+    if (*params->imodel==1)
+      cov += params->V_xi_n[(params->E[i*2]-1)];
+    if (*params->imodel==2)
+      cov += params->V_xi_n[(params->E[i*2+1]-1)];
+    if (*params->imodel==3)
+      cov += params->V_xi_n[(params->E[i*2]-1)] + params->V_xi_n[N+(params->E[i*2+1]-1)];
     for (pn=0;pn<P_n;pn++)
-      {
-      cov += params->V_xi_n[(params->E[i*2]-1)* P_n+pn]*params->XX_n[(params->E[i*2]-1)* P_n+pn] + 
-             params->V_xi_n[(params->E[i*2+1]-1)* P_n+pn]*params->XX_n[(params->E[i*2+1]-1)* P_n+pn];
-      cov2+= params->V_psi2_n[pn]*
-            (params->XX_n[(params->E[i*2]-1)* P_n+pn]+params->XX_n[(params->E[i*2+1]-1)* P_n+pn]);
-      }
+      cov2+= params->V_psi2_n[pn];
     tmpsum += params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p]*
               (1.0 - 1.0/(1.0 + exp (-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5 * cov2)));
     }
@@ -58,17 +59,18 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
     i=sample_non_edges[j];
     cov = params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p];
     cov2= params->V_psi2_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p]; 
+    if (*params->imodel==1)
+      cov += params->V_xi_n[(params->nonE[i*2]-1)];
+    if (*params->imodel==2)
+      cov += params->V_xi_n[(params->nonE[i*2+1]-1)];
+    if (*params->imodel==3)
+      cov += params->V_xi_n[(params->nonE[i*2]-1)] + params->V_xi_n[N+(params->nonE[i*2+1]-1)];
     for (pn=0;pn<P_n;pn++)
-      {
-      cov += params->V_xi_n[(params->nonE[i*2]-1)* P_n+pn]*params->XX_n[(params->nonE[i*2]-1)* P_n+pn] +
-             params->V_xi_n[(params->nonE[i*2+1]-1)* P_n+pn]*params->XX_n[(params->nonE[i*2+1]-1)* P_n+pn];
-      cov2+= params->V_psi2_n[pn]*
-            (params->XX_n[(params->nonE[i*2]-1)* P_n+pn]+params->XX_n[(params->nonE[i*2+1]-1)* P_n+pn]);
-      }
+      cov2+= params->V_psi2_n[pn];
     tmpsum += *params->NnonE/NC1*(params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p]*
                 (- 1.0/(1.0 + exp (-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5 * cov2))));
       }
-  KL = tmpsum - 0.5*fabs(params->V_xi_e[p] - *params->xi) / *params->psi2;
+  KL = tmpsum - 0.5*(params->V_xi_e[p] - *params->xi) / *params->psi2;
   free(sample_non_edges);
   gsl_vector_set(df, 0, -KL);
   return;
@@ -76,25 +78,50 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
 void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
 {
   int i=*params->i, p=*params->p, P_n=*params->P_n, P_e=*params->P_e, j, pe;
-  params->V_xi_n[i*P_n+p] = gsl_vector_get(v_V_xi_n, 0);
+  int N = *params->N;
+  params->V_xi_n[i+N*p] = gsl_vector_get(v_V_xi_n, 0);
   double tmpsum = 0.0, cov, cov2;
   int *sample_nodes, hsum, h, Nnon, k;
-  int N = *params->N;
   double KL;
   int diam=*params->diam;
   for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
     {
-    cov = params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] +
-          params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	  params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p];
-    cov2= params->V_psi2_n[i*P_n+p]*
-         (params->XX_n[i*P_n + p]+params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p]);
+    // i->j part
+    cov2 = 0.0;
+    if (*params->imodel==1)
+      cov = params->V_xi_n[i];
+    if (*params->imodel==2)
+       cov = params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+    if (*params->imodel==3)
+      cov = params->V_xi_n[i] + params->V_xi_n[N+(params->hopslist[i*(CONST+diam+N)+j]-1)];
     for (pe=0;pe<P_e;pe++)
       {
       cov += params->V_xi_e[pe]*params->XX_e[(i*N + params->hopslist[i*(CONST+diam+N)+j]-1)* P_e + pe];  
       cov2+= params->V_psi2_e[pe]*params->XX_e[(i*N + params->hopslist[i*(CONST+diam+N)+j]-1)* P_e + pe];
       }
-    tmpsum += (1.0 - 1.0/(1.0 + exp (-cov + params->dists[i*N + (params->hopslist[i*(CONST+diam+N)+j]-1)] - 0.5 * cov2)));
+    cov2 += params->V_psi2_n[0];
+    if (*params->imodel==3)
+      cov2 += params->V_psi2_n[1];
+    tmpsum += (params->Y[i*N+(params->hopslist[i*(CONST+diam+N)+j]-1)] - 
+               1.0/(1.0 + exp (-cov + params->dists[i*N + (params->hopslist[i*(CONST+diam+N)+j]-1)] - 0.5 * cov2)));
+    // j->i part
+    cov2 = 0.0;
+    if (*params->imodel==1)
+      cov = params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+    if (*params->imodel==2)
+      cov = params->V_xi_n[i];
+    if (*params->imodel==3)
+      params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)] + params->V_xi_n[N+i];
+    for (pe=0;pe<P_e;pe++)
+      {
+      cov += params->V_xi_e[pe]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* P_e + pe];  
+      cov2+= params->V_psi2_e[pe]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* P_e + pe];
+      }
+    cov2 += params->V_psi2_n[0];
+    if (*params->imodel==3)
+      cov2 += params->V_psi2_n[1];
+    tmpsum += (params->Y[(params->hopslist[i*(CONST+diam+N)+j]-1)*N+i] - 
+               1.0/(1.0 + exp (-cov + params->dists[(params->hopslist[i*(CONST+diam+N)+j]-1)*N+i] - 0.5 * cov2)));
     }
   hsum = 0;
   for (h=2;h<1+diam;h++) // <1+diam because we don't sample unknown edges
@@ -107,12 +134,36 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
       for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
-        cov = params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + params->V_xi_n[j*P_n+p]* params->XX_n[j* P_n + p];
-        cov2= params->V_psi2_n[i*P_n+p]*(params->XX_n[i* P_n + p]+params->XX_n[j* P_n + p]);
+	// this part for Yij = 0 
+        if (*params->imodel==1)
+          cov = params->V_xi_n[i]; 
+        if (*params->imodel==2)
+          cov = params->V_xi_n[j];
+        if (*params->imodel==3)
+          cov = params->V_xi_n[i] + params->V_xi_n[N+j];
+    cov2 = params->V_psi2_n[0];
+    if (*params->imodel==3)
+      cov2 += params->V_psi2_n[1];
 	for (pe=0;pe<P_e;pe++)
           {
           cov += params->V_xi_e[pe]*params->XX_e[(i*N + j)* P_e + pe];
           cov2+= params->V_psi2_e[pe]*params->XX_e[(i*N + j)* P_e + pe];
+          }
+        tmpsum += Nnon/NC2*(- 1.0/(1.0 + exp (-cov + params->dists[i*N + j] - 0.5 * cov2)));
+	// this part for Yji = 0 
+	if (*params->imodel==1)
+          cov = params->V_xi_n[j];
+        if (*params->imodel==2)
+          cov = params->V_xi_n[i];
+        if (*params->imodel==3)
+          cov = params->V_xi_n[N+i] + params->V_xi_n[j];
+    cov2 = params->V_psi2_n[0];
+    if (*params->imodel==3)
+      cov2 += params->V_psi2_n[1];
+        for (pe=0;pe<P_e;pe++)
+          {
+          cov += params->V_xi_e[pe]*params->XX_e[(j*N + i)* P_e + pe];
+          cov2+= params->V_psi2_e[pe]*params->XX_e[(j*N + i)* P_e + pe];
           }
         tmpsum += Nnon/NC2*(- 1.0/(1.0 + exp (-cov + params->dists[i*N + j] - 0.5 * cov2)));
         }
@@ -120,7 +171,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
       free(sample_nodes);
       }
     }
-  KL = tmpsum - 0.5*fabs(params->V_xi_n[i*P_n+p] - *params->xi) / *params->psi2;
+  KL = tmpsum - 0.5*(params->V_xi_n[i+N*p] - *params->xi) / *params->psi2;
   gsl_vector_set(df, 0, -KL);
   return;
 }
@@ -191,19 +242,36 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
       tmp += pow(params->V_z[i * D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1) * D + d], 2.0);
     tmp = SQRT(tmp + D *(params->V_sigma2[i] + params->V_sigma2[(params->hopslist[i*(CONST+diam+N)+j]-1)]));
     cov=0.0; cov2=0.0;
-    if (P_n > 0)
-      for (p=0;p<P_n;p++)
-        {
-        cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + 
-               params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	       params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p];
-        cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p] + params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p]);
-        }
-    for (p=0;p<*params->P_e;p++)
+    if (params->Y[i*N+(params->hopslist[i*(CONST+diam+N)+j]-1)]>0) // i is sender and j is receiver
       {
-      cov += params->V_xi_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
-      cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
+      if (*params->imodel==1)
+        cov += params->V_xi_n[i];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[i] + params->V_xi_n[N+(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      for (p=0;p<*params->P_e;p++)
+        {
+        cov += params->V_xi_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
+        cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
+        }
       }
+    if (params->Y[(params->hopslist[i*(CONST+diam+N)+j]-1)*N+i]>0) // j is sender and i is receiver
+      {
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[i]; 
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)] + params->V_xi_n[N+i];
+      for (p=0;p<*params->P_e;p++)
+        {
+        cov += params->V_xi_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        cov2+= params->V_psi2_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        }
+      }
+    for (p=0;p<P_n;p++)
+      cov2+= params->V_psi2_n[p];
     for (d=0; d<D; d++)
         tmpsum[d] +=  (params->V_z[i * D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1) * D + d]) *
                       (1.0 - 1.0/(1.0+exp(-cov + tmp - 0.5*cov2)));
@@ -224,12 +292,14 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
           tmp += pow(params->V_z[i * D + d] - params->V_z[j * D + d], 2.0);
         tmp = SQRT(tmp + D *(params->V_sigma2[i] + params->V_sigma2[j]));
         cov=0.0; cov2=0.0;
-        if (P_n > 0)
-          for (p=0;p<P_n;p++)
-            {
-            cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + params->V_xi_n[j*P_n+p]*params->XX_n[j* P_n + p];
-            cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p]+params->XX_n[j* P_n + p]);
-            }
+        if (*params->imodel==1)
+          cov += params->V_xi_n[i];
+        if (*params->imodel==2)
+          cov += params->V_xi_n[j];
+        if (*params->imodel==3)
+          cov += params->V_xi_n[i] + params->V_xi_n[N+j];
+        for (p=0;p<P_n;p++)
+          cov2+= params->V_psi2_n[p];
         for (p=0;p<*params->P_e;p++)
           {
           cov += params->V_xi_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
@@ -314,26 +384,44 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
   int Nnon=N-params->hopslist[i*(CONST+diam+N)+1]-params->hopslist[i*(CONST+diam+N)+1+diam];
   int *sample_nodes = 0;
   for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
+    {
+    tmp = 0.0;
+    for (d = 0; d < D; d++)
+      tmp += pow (params->V_z[i * D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1) * D + d], 2.0);
+    cov=0.0; cov2=0.0;
+    if (params->Y[i*N+(params->hopslist[i*(CONST+diam+N)+j]-1)]>0) // i is sender and j is receiver
       {
-        tmp = 0.0;
-        for (d = 0; d < D; d++)
-          tmp += pow (params->V_z[i * D + d] - params->V_z[(params->hopslist[i*(CONST+diam+N)+j]-1) * D + d], 2.0);
-      cov=0.0; cov2=0.0;
-      for (p=0;p<P_n;p++)
-        {
-        cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + 
-	       params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)*P_n+p]*
-	       params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p];
-        cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p] + params->XX_n[(params->hopslist[i*(CONST+diam+N)+j]-1)* P_n + p]);
-        }
+      if (*params->imodel==1)
+        cov += params->V_xi_n[i];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[i] + params->V_xi_n[N+(params->hopslist[i*(CONST+diam+N)+j]-1)];
       for (p=0;p<*params->P_e;p++)
         {
         cov += params->V_xi_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
         cov2+= params->V_psi2_e[p]*params->XX_e[(i*N + (params->hopslist[i*(CONST+diam+N)+j]-1))* *params->P_e + p];
         }
-        tmp = SQRT (tmp + D * (V_sigma2_i + params->V_sigma2[(params->hopslist[i*(CONST+diam+N)+j]-1)]));
-        tmpsum = tmpsum - D + D / (V_sigma2_i * (1.0 + exp (-cov + tmp - 0.5 * cov2)));
       }
+    if (params->Y[(params->hopslist[i*(CONST+diam+N)+j]-1)*N+i]>0) // j is sender and i is receiver
+      {
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[i];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)] + params->V_xi_n[N+i];
+      for (p=0;p<*params->P_e;p++)
+        {
+        cov += params->V_xi_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        cov2+= params->V_psi2_e[p]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* *params->P_e + p];
+        }
+      }
+    for (p=0;p<P_n;p++)
+      cov2+= params->V_psi2_n[p];
+    tmp = SQRT (tmp + D * (V_sigma2_i + params->V_sigma2[(params->hopslist[i*(CONST+diam+N)+j]-1)]));
+    tmpsum = tmpsum - D + D / (V_sigma2_i * (1.0 + exp (-cov + tmp - 0.5 * cov2)));
+    }
   hsum = 0;
   for (h=2;h<1+diam;h++) // <1+diam because we don't sample unknown edges
     {
@@ -349,12 +437,14 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
         for (d = 0; d < D; d++)
           tmp += pow (params->V_z[i * D + d] - params->V_z[j * D + d], 2.0);
         cov=0.0; cov2=0.0;
+        if (*params->imodel==1)
+          cov += params->V_xi_n[i];
+        if (*params->imodel==2)
+          cov +=  params->V_xi_n[j];
+        if (*params->imodel==3)
+          cov += params->V_xi_n[i] + params->V_xi_n[N+j];
         for (p=0;p<P_n;p++)
-          {
-          cov += params->V_xi_n[i*P_n+p]*params->XX_n[i* P_n + p] + 
-	         params->V_xi_n[j*P_n+p]*params->XX_n[j* P_n + p];
-          cov2+= params->V_psi2_n[p]*(params->XX_n[i* P_n + p] + params->XX_n[j* P_n + p]);
-          }
+          cov2+= params->V_psi2_n[p];
         for (p=0;p<*params->P_e;p++)
           {
           cov += params->V_xi_e[p]*params->XX_e[(i*N + j)* *params->P_e + p];
@@ -557,12 +647,14 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
       {
       cov = params->V_xi_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p];
       cov2= params->V_psi2_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p];
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->E[i*2]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->E[i*2+1]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->E[i*2]-1)] + params->V_xi_n[N+(params->E[i*2+1]-1)];
       for (pn=0;pn<P_n;pn++)
-        {
-        cov +=params->V_xi_n[(params->E[i*2]-1)*P_n+pn]*params->XX_n[(params->E[i*2]-1)* P_n + pn] +
-              params->V_xi_n[(params->E[i*2+1]-1)*P_n+pn]*params->XX_n[(params->E[i*2+1]-1)* P_n + pn];
-        cov2+= params->V_psi2_n[pn]*(params->XX_n[(params->E[i*2]-1)* P_n + pn]+params->XX_n[(params->E[i*2+1]-1)* P_n + pn]);
-        }
+        cov2+= params->V_psi2_n[pn];
       tmp1 += -0.5*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + *params->p]/
                (1.0+exp(-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5*cov2));
       }
@@ -572,12 +664,14 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
       i=sample_non_edges[j];
       cov = params->V_xi_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p];
       cov2= params->V_psi2_e[p]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + p];
+      if (*params->imodel==1)
+        cov += params->V_xi_n[(params->nonE[i*2]-1)];
+      if (*params->imodel==2)
+        cov += params->V_xi_n[(params->nonE[i*2+1]-1)];
+      if (*params->imodel==3)
+        cov += params->V_xi_n[(params->nonE[i*2]-1)] + params->V_xi_n[N+(params->nonE[i*2+1]-1)];
       for (pn=0;pn<P_n;pn++)
-        {
-        cov +=params->V_xi_n[(params->nonE[i*2]-1)*P_n+pn]*params->XX_n[(params->nonE[i*2]-1)* P_n + pn] +
-              params->V_xi_n[(params->nonE[i*2+1]-1)*P_n+pn]*params->XX_n[(params->nonE[i*2+1]-1)* P_n + pn];
-        cov2+= params->V_psi2_n[pn]*(params->XX_n[(params->nonE[i*2]-1)* P_n + pn]+params->XX_n[(params->nonE[i*2+1]-1)* P_n + pn]);
-        }
+        cov2+= params->V_psi2_n[pn];
       tmp1 += *params->NnonE/NC1*(-0.5*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + *params->p]/
                (1.0+exp(-cov + params->dists[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)] - 0.5*cov2)));
       }
@@ -600,9 +694,13 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
   KL = 0.0;
   for (i = 0; i < *params->NE; i++) // loop over all edges
     {
-    cov = params->V_xi_n[(params->E[i*2]-1)*P_n+p]*params->XX_n[(params->E[i*2]-1)* P_n + p] +
-          params->V_xi_n[(params->E[i*2+1]-1)*P_n+p]*params->XX_n[(params->E[i*2+1]-1)* P_n + p];
-    cov2= params->V_psi2_n[p]*(params->XX_n[(params->E[i*2]-1)* P_n + p]+params->XX_n[(params->E[i*2+1]-1)* P_n + p]);
+    if (*params->imodel==1)
+      cov = params->V_xi_n[(params->E[i*2]-1)];
+    if (*params->imodel==2)
+      cov = params->V_xi_n[(params->E[i*2+1]-1)];
+    if (*params->imodel==3)
+      cov = params->V_xi_n[(params->E[i*2]-1)] + params->V_xi_n[N+(params->E[i*2+1]-1)];
+    cov2 = params->V_psi2_n[p];
     for (pe=0;pe<P_e;pe++)
       {
       cov += params->V_xi_e[pe]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + pe];
@@ -614,9 +712,13 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
   for (j=0;j<NC1;j++) // loop over a sample of the non-edges
     {
     i=sample_non_edges[j];
-    cov = params->V_xi_n[(params->nonE[i*2]-1)*P_n+p]*params->XX_n[(params->nonE[i*2]-1)* P_n + p] +
-           params->V_xi_n[(params->nonE[i*2+1]-1)*P_n+p]*params->XX_n[(params->nonE[i*2+1]-1)* P_n + p];
-    cov2= params->V_psi2_n[p]*(params->XX_n[(params->nonE[i*2]-1)* P_n + p]+params->XX_n[(params->nonE[i*2+1]-1)* P_n + p]);
+    if (*params->imodel==1)
+      cov = params->V_xi_n[(params->nonE[i*2]-1)];
+    if (*params->imodel==2)
+      cov = params->V_xi_n[(params->nonE[i*2+1]-1)];
+    if (*params->imodel==3)
+      cov = params->V_xi_n[(params->nonE[i*2]-1)] + params->V_xi_n[N+(params->nonE[i*2+1]-1)];
+    cov2= params->V_psi2_n[p];
     for (pe=0;pe<P_e;pe++)
       {
       cov += params->V_xi_e[pe]*params->XX_e[((params->nonE[i*2]-1)*N + params->nonE[i*2+1]-1)* P_e + pe];
@@ -646,7 +748,8 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
        gr_KL_V_psi2_n(x, NULL, df);
        return;
      }
-void KL_total (int *P_n,
+void KL_total (int *imodel,
+  int *P_n,
   int *P_e,
   int *D,
   int *N,
@@ -662,7 +765,6 @@ void KL_total (int *P_n,
   int *EnonE,
   int *diam,
   int *hopslist,
-  double *XX_n,
   double *XX_e,
   double *V_xi_n,
   double *V_xi_e,
@@ -682,7 +784,6 @@ void KL_total (int *P_n,
   double *nu,
   double *alpha,
   double *inv_sigma02,
-  double *dists,
   int *NC,
   double *KL)
 { 
@@ -711,7 +812,6 @@ void KL_total (int *P_n,
   params->EnonE=EnonE;
   params->diam=diam; 
   params->hopslist=hopslist; 
-  params->XX_n=XX_n; // design matrix for node covariates. May also be used for sender / receiver effects, etc.
   params->XX_e=XX_e; // design matrix for edge covariates. 
   params->V_xi_n=V_xi_n;
   params->V_xi_e=V_xi_e;
@@ -731,8 +831,8 @@ void KL_total (int *P_n,
   params->nu=nu;
   params->alpha=alpha;
   params->inv_sigma02=inv_sigma02;
-  params->dists=dists;
   params->NC=NC;
+  params->imodel=imodel;
   flag=0;
   // p1
   *KL = loglikefunc(); 
@@ -779,7 +879,7 @@ void KL_total (int *P_n,
       {
       *KL += 0.5*(*D*(log(V_psi2_n[p])-log(*psi2)) - *D*(V_psi2_n[p]/ *psi2));
       for (i=0;i<*N;i++)
-        *KL += 0.5*(- pow(V_xi_n[i* *P_n+p]-xi[p],2.0)/ *psi2 +*D);
+        *KL += 0.5*(- pow(V_xi_n[i+ *N*p]-xi[p],2.0)/ *psi2 +*D);
       }
   for (p=0;p<*P_e;p++)
     *KL += 0.5*(*D*(log(V_psi2_e[p])-log(*psi2)) - *D*(V_psi2_e[p]/ *psi2) - pow(V_xi_e[p]-xi[p],2.0)/ *psi2 +*D);

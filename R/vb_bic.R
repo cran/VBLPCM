@@ -6,7 +6,6 @@ vblpcmbic<-function(v.params)
   Y<-v.params$Y
   P_n<-v.params$P_n
   P_e<-v.params$P_e
-  XX_n<-v.params$XX_n
   XX_e<-v.params$XX_e
   V_xi_n<-v.params$V_xi_n
   V_xi_e<-v.params$V_xi_e
@@ -23,7 +22,7 @@ vblpcmbic<-function(v.params)
   cov2<-XX_e%*%V_psi2_e
   if (P_n > 0) 
     {
-    tmp<-apply(XX_n*V_xi_n,1,sum)
+    tmp<-apply(V_xi_n,1,sum)
     cov1 <- cov1 + c(tmp%*%t(tmp))
     tmp<-rep(sum(V_psi2_n),N) 
     cov2<-cov2+c(tmp%*%t(tmp))

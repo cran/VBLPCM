@@ -28,7 +28,6 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
   EnonE<-variational.start$EnonE
   diam<-variational.start$diam
   hopslist<-variational.start$hopslist
-  XX_n<-variational.start$XX_n
   XX_e<-variational.start$XX_e
   V_xi_n<-variational.start$V_xi_n
   V_xi_e<-variational.start$V_xi_e
@@ -48,13 +47,14 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
   nu<-variational.start$nu
   alpha<-variational.start$alpha
   inv_sigma02<-variational.start$inv_sigma02
+  imodel=switch(model, plain=0, rsender=1, rreceiver=2, rsocial=3)
   conv=0 # not converged to start with
-  out<-.C("Rf_VB_bbs", NAOK=TRUE, steps=as.integer(STEPS), max_iter=as.integer(maxiter), P_n=as.integer(P_n), 
+  out<-.C("Rf_VB_bbs", NAOK=TRUE, imodel=as.integer(imodel), steps=as.integer(STEPS), max_iter=as.integer(maxiter), P_n=as.integer(P_n), 
            P_e=as.integer(P_e), D=as.integer(d), N=as.integer(N), NE=as.integer(NE), NnonE=as.integer(NnonE), NM=as.integer(NM),
            G=as.integer(G), Y=as.numeric(t(Y)), E=as.integer(t(E)), nonE=as.integer(t(nonE)), M=as.integer(t(M)),
   	   numedges=as.integer(t(numedges)), EnonE=as.integer(t(EnonE)), diam=as.integer(diam),
-	   hopslist=as.integer(t(hopslist)), XX_n=as.double(t(XX_n)), XX_e=as.double(t(XX_e)),
-           V_xi_n=as.double(t(V_xi_n)), V_xi_e=as.double(V_xi_e), V_psi2_n=as.double(V_psi2_n), 
+	   hopslist=as.integer(t(hopslist)), XX_e=as.double(t(XX_e)),
+           V_xi_n=as.double((V_xi_n)), V_xi_e=as.double(V_xi_e), V_psi2_n=as.double(V_psi2_n), 
            V_psi2_e=as.double(V_psi2_e), V_z=as.double(t(V_z)), V_sigma2=as.double(V_sigma2), 
            V_eta=as.double(t(V_eta)), V_lambda=as.double(t(V_lambda)),
            V_omega2=as.double(V_omega2), V_nu=as.double(V_nu), V_alpha=as.double(V_alpha),
@@ -63,8 +63,10 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
            inv_sigma02=as.double(inv_sigma02), tol=as.double(tol), NC=as.integer(NC), 
 	   seed=as.double(seed), d_vector=as.double(d_vector), conv=as.integer(conv),
 	   PACKAGE="VBLPCM")
-  
-  V_xi_n<-out$V_xi_n
+  if (model=="plain") 
+    V_xi_n<-NaN
+  if (model!="plain") 
+    V_xi_n<-(matrix(out$V_xi_n,ncol=P_n))
   V_xi_e<-out$V_xi_e
   V_z<-t(matrix(out$V_z,ncol=N))
   V_sigma2<-out$V_sigma2
@@ -98,7 +100,6 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
   EnonE->variational.params$EnonE
   diam->variational.params$diam
   hopslist->variational.params$hopslist
-  XX_n->variational.params$XX_n
   XX_e->variational.params$XX_e
   V_xi_n->variational.params$V_xi_n
   V_xi_e->variational.params$V_xi_e

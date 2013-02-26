@@ -23,6 +23,7 @@ log_like_forces<-function(net, D, X, B, m=network.size(net), steps=1e3)
     {
     # update B
     tmpx<-c(as.matrix(dist(X)))[-delete]
+    #tmpx<- -1/c(as.matrix(dist(X)))[-delete] # NEW dists
     if (doB==1)
       B<-optim(B, loglike, x=tmpx, y=y, method="BFGS", control=list(fnscale=-1))$par
     # update X

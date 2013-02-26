@@ -11,7 +11,7 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 2.3\cr
+Version: \tab 2.4\cr
 Date: \tab 2012-08-25\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
@@ -101,7 +101,7 @@ data(sampson,package="VBLPCM")
 v.start<-vblpcmstart(samplike,G=3,model="rreceiver")
 v.fit<-vblpcmfit(v.start)
 ### plot the mean posterior positions ###
-plot(v.fit, R2=0.1,main="Sampson's Monks: VB with Receiver Random Effects")
+plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Receiver Random Effects")
 
 ### Use ROC / AUC to get a measure of model fit to the data ###
 vblpcmroc(v.fit)
