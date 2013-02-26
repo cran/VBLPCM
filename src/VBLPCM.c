@@ -27,7 +27,8 @@ double diff_mean(double *vec1, double *vec2, int n) // compute largest absolute 
 void bb(double *lim, double *tol); // in bb.c
 void optim(); 
 
-void Rf_VB_bbs(int *steps,
+void Rf_VB_bbs(int *imodel,
+  int *steps,
   int *max_iter,
   int *P_n,
   int *P_e,
@@ -45,7 +46,6 @@ void Rf_VB_bbs(int *steps,
   int *EnonE,
   int *diam,
   int *hopslist,
-  double *XX_n,
   double *XX_e,
   double *V_xi_n,
   double *V_xi_e,
@@ -96,7 +96,6 @@ void Rf_VB_bbs(int *steps,
   params->EnonE=EnonE;
   params->diam=diam; 
   params->hopslist=hopslist; 
-  params->XX_n=XX_n; // design matrix for node covariates. May also be used for sender / receiver effects, etc.
   params->XX_e=XX_e; // design matrix for edge covariates. 
   params->V_xi_n=V_xi_n;
   params->V_xi_e=V_xi_e;
@@ -120,6 +119,7 @@ void Rf_VB_bbs(int *steps,
   params->NC=NC;
   params->seed=seed;
   params->conv=conv;
+  params->imodel=imodel;
   int *samp_nodes = calloc(*N, sizeof(int));
   int *samp_groups= calloc(*G, sizeof(int));
   int *samp_coeffs_n=calloc(1,sizeof(int)), *samp_coeffs_e=calloc(*P_e, sizeof(int)); 
@@ -220,6 +220,7 @@ void Rf_VB_bbs(int *steps,
        for (d = 0; d < *params->D; d++)
          params->dists[i* *N + j] += pow (V_z[i* *D + d] - V_z[j* *D + d], 2.0);
         params->dists[i* *N + j] = SQRT (params->dists[i* *N + j] +  *D*(params->V_sigma2[i] + params->V_sigma2[j]));
+        //params->dists[i* *N + j] = -1.0/SQRT (params->dists[i* *N + j] +  *D*(params->V_sigma2[i] + params->V_sigma2[j])); // NEW dists
 	}
   R_CheckUserInterrupt();
   if (d_vector[2] > *tol)
@@ -316,22 +317,25 @@ void Rf_VB_bbs(int *steps,
           params->i=&samp_nodes[i];
           bb(lim, tol);
           }
-       // now shift for mean=0 
-       tmp=0.0;
-       for (i=0; i<*N; i++)
-         tmp+=V_xi_n[i* *params->P_n+ *params->p];
-       tmp/= *N;
-       for (i=0; i<*N; i++)
-         V_xi_n[i* *params->P_n+ *params->p]-=tmp;
-       // now scale for sd=sqrt(V_psi2_n)
-       tmp=0.0;
-       for (i=0; i<*N; i++)
-         tmp+=pow(V_xi_n[i* *params->P_n+ *params->p],2.0);
-       tmp/= *N;
-       tmp=sqrt(tmp);
-       for (i=0; i<*N; i++)
-         V_xi_n[i* *params->P_n+ *params->p]=(V_xi_n[i* *params->P_n+ *params->p]*sqrt(V_psi2_n[*params->p]))/tmp;
-        }
+/*
+	// FLAG
+        // now shift for mean=0 
+        tmp=0.0;
+        for (i=0; i<*N; i++)
+          tmp+=V_xi_n[i+ *N* *params->p];
+        tmp/= *N;
+        for (i=0; i<*N; i++)
+          V_xi_n[i+ *N* *params->p]-=tmp;
+        // now scale for sd=sqrt(V_psi2_n)
+        tmp=0.0;
+        for (i=0; i<*N; i++)
+          tmp+=pow(V_xi_n[i+ *N* *params->p],2.0);
+        tmp/= *N;
+        tmp=sqrt(tmp);
+        for (i=0; i<*N; i++)
+          V_xi_n[i+ *N* *params->p]=(V_xi_n[i+ *N* *params->p]*sqrt(V_psi2_n[*params->p]))/tmp;
+*/
+      }
       d_vector[7]=diff_max(V_xi_n, old_xi_n, *P_n* *N);
       }
     if (*P_e > 0)

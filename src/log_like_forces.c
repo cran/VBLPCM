@@ -32,6 +32,7 @@ void log_like_forces(int *directed, int *N, int *D, int *steps, double *Y, doubl
 	for (d=0;d<*D;d++)
           xd[d]/=ded;                /* Rescale differences to length 1 */
         f=-Y[j* *N+k]*(*B-ded)-log(1.0+exp(*B-ded));
+        //f=-Y[j* *N+k]*(*B+1.0/ded)-log(1.0+exp(*B+1.0/ded)); // NEW dists
   	for (d=0;d<*D;d++)
           {
           MATRIX(dxdy, j, d)-=xd[d]*damp*(f); /* Add to the position change vector */

@@ -1,6 +1,6 @@
 # functions for calculating adjacency matrices, edges, non-edges, etc from each other
 #source("adjacency_to_edges.R") 
-vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
+vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B=NULL, 
                        lcc=TRUE,edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,socialcovs=NULL,START="FR", seed=0)
   {
   if (!is.nan(seed))
@@ -105,14 +105,13 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   hopslist<-hops_to_hopslist(hops,diam,N) 
   # create covariates design matrix
   XX<-vblpcmcovs(N,model,Y,edgecovs,sendcovs,receivecovs,socialcovs)
-  XX_n<-XX$XX_n
   XX_e<-XX$XX_e
-  P_n<-ncol(XX_n)
-  if (is.null(P_n))  
-    {
+  if (model=="plain")
     P_n<-0
-    XX_n<-0
-    }
+  if (model=="rreceiver" | model=="rsender") 
+    P_n<-1
+  if (model=="rsocial")
+    P_n<-2
   P_e<-ncol(XX_e)
   
   # variational parameters are: 
@@ -151,11 +150,12 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     #X<-network.layout.fruchtermanreingold(g.network,layout.par=list(area=N)) # only works in 2D
     X<-fruchterman_reingold(g.network, d)
     }
-  if (!exists("B")) 
+  if (is.null(B)) 
     {
     delete<-seq(from=1, to=N*N, by=(N+1))
     y<-c(Y)[-delete]# logistic regression
-    tmpx<- c(as.matrix(dist(X)))[-delete]
+    #tmpx<- c(as.matrix(dist(X)))[-delete]
+    tmpx<- -1/c(as.matrix(dist(X)))[-delete] # NEW dists
     p<-mean(y,na.rm=1)
     B<-mean(tmpx)+log(p)-log(1-p) # "average distance" + log-odds(p) 
     }
@@ -166,19 +166,22 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
     {
     initial_V_xi_n<-apply(Y,2,sum,na.rm=1)
     initial_V_xi_n<-(initial_V_xi_n-mean(initial_V_xi_n))/sd(initial_V_xi_n)
+    initial_V_xi_n<-matrix(initial_V_xi_n,ncol=1)
     }
   if (model=="rsender") 
     {
     initial_V_xi_n<-apply(Y,1,sum,na.rm=1)
     initial_V_xi_n<-(initial_V_xi_n-mean(initial_V_xi_n))/sd(initial_V_xi_n)
+    initial_V_xi_n<-matrix(initial_V_xi_n,ncol=1)
     }
   if (model =="rsocial") 
     {
-    tmp1<-apply(Y,2,sum,na.rm=1)
+    tmp1<-apply(Y,1,sum,na.rm=1)
     tmp1<-(tmp1-mean(tmp1))/sd(tmp1)
-    tmp2<-apply(Y,1,sum,na.rm=1)
+    tmp2<-apply(Y,2,sum,na.rm=1)
     tmp2<-(tmp2-mean(tmp2))/sd(tmp2)
-    initial_V_xi_n<-c(t(matrix(c(tmp1, tmp2),N)))
+    #initial_V_xi_n<-c(t(matrix(c(tmp1, tmp2),N)))
+    initial_V_xi_n<-cbind(tmp1,tmp2)
     }
   if (d>1) 
     {
@@ -258,7 +261,6 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0,
   EnonE->variational.start$EnonE
   diam->variational.start$diam
   hopslist->variational.start$hopslist
-  XX_n->variational.start$XX_n
   XX_e->variational.start$XX_e
   V_xi_n->variational.start$V_xi_n
   V_xi_e->variational.start$V_xi_e

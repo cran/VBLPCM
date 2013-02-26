@@ -57,7 +57,7 @@ typedef struct
   double *nu;
   double *inv_sigma02;
   int *flag;
-  int *model;
+  int *imodel;
   int *NC;
   double *seed;
   int *conv;

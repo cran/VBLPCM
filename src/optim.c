@@ -49,7 +49,7 @@ void optim()
   F.n = SIZE;
   switch (flag)
     {
-    case 0: gsl_vector_set(x, 0, params->V_xi_n[*params->p]);
+    case 0: gsl_vector_set(x, 0, params->V_xi_n[*params->i+*params->N* *params->p]);
       F.f = &KL_V_xi_n;
       F.df = &gr_KL_V_xi_n;
       F.fdf = &xi_n_fdf;
@@ -117,7 +117,7 @@ void optim()
   while (status == GSL_CONTINUE && iter < *max_iter);
   switch (flag)
     {
-    case 0: params->V_xi_n[*params->p] = gsl_vector_get (s->x, 0); 
+    case 0: params->V_xi_n[*params->i+*params->N* *params->p] = gsl_vector_get (s->x, 0); 
       break;
     case 6: params->V_xi_e[*params->p] = gsl_vector_get (s->x, 0); 
       break;
