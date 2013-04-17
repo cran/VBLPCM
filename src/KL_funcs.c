@@ -77,10 +77,10 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
 }
 void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
 {
-  int i=*params->i, p=*params->p, P_n=*params->P_n, P_e=*params->P_e, j, pe;
+  int i=*params->i, p=*params->p, P_e=*params->P_e, j, pe;
   int N = *params->N;
   params->V_xi_n[i+N*p] = gsl_vector_get(v_V_xi_n, 0);
-  double tmpsum = 0.0, cov, cov2;
+  double tmpsum = 0.0, cov=0.0, cov2;
   int *sample_nodes, hsum, h, Nnon, k;
   double KL;
   int diam=*params->diam;
@@ -111,7 +111,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
     if (*params->imodel==2)
       cov = params->V_xi_n[i];
     if (*params->imodel==3)
-      params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)] + params->V_xi_n[N+i];
+      cov = params->V_xi_n[(params->hopslist[i*(CONST+diam+N)+j]-1)] + params->V_xi_n[N+i];
     for (pe=0;pe<P_e;pe++)
       {
       cov += params->V_xi_e[pe]*params->XX_e[((params->hopslist[i*(CONST+diam+N)+j]-1)*N+i)* P_e + pe];  
@@ -685,9 +685,9 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
 {
   int i, p=*params->p, j, pe;
   int D = *params->D;     
-  double tmp1=0.0, cov, cov2;
+  double tmp1=0.0, cov=0.0, cov2;
   int N = *params->N;
-  int P_n = *params->P_n, P_e = *params->P_e;
+  int P_e = *params->P_e;
   double KL;
   int *sample_non_edges = calloc(*params->NnonE, sizeof(int));
   params->V_psi2_n[*params->p] = gsl_vector_get(v_V_psi2_n, 0);

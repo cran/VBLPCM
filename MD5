@@ -1,5 +1,5 @@
-1fe5e90580c4eb7b0e2367b64dee4cd0 *CHANGELOG
-70318c40315fb74099358cdb4256d355 *DESCRIPTION
+f41aaaa4bd4eb591d7f1b251be28ac08 *CHANGELOG
+5d41853f335c406a6b401eb985edd5d1 *DESCRIPTION
 6066c73622b7572e7b444b0f1070c9cb *NAMESPACE
 0ad0649fad4d2bb50c2b83705e7bc878 *R/KL.R
 8213320f2c721fe16c7d6614c1c76fd9 *R/VBLPCM.R
@@ -16,7 +16,7 @@ b2971e93430601290bc92758c8587c1f *R/gof.vblpcm.R
 4f69c86b26fbc64b90e83eb39a6ac450 *R/summarise_groups.R
 054e8f388ac9c8373ab5b6e66818754e *R/summary.vblpcm.R
 31c8ccdf29df94b0f5f9508fcb1a7e9e *R/vb_bic.R
-350fb0a0f95a10d418c158108cde5e6a *R/zzz.R
+a44399fc95fddd70cdb16f8e6b0eb5eb *R/zzz.R
 1215b49b49d2dcb0f996500bd0e7c5ce *configure
 654b38e8f3726e7c9613425a5b50bbd8 *configure.ac
 013778ff539b989141783da07f3ddd03 *data/aids.rda
@@ -25,7 +25,7 @@ b2971e93430601290bc92758c8587c1f *R/gof.vblpcm.R
 9beed6138652a9e4ebedd2cb1f270acb *inst/CITATION
 4ccabdb12a6c7592d26cceab34755ee0 *man/E_to_Y.Rd
 62b220ff6a4b95449f21d7eabbbd5848 *man/VBLPCM-internal.Rd
-8cd03e63fe3fc432bdf3d99ed252ed82 *man/VBLPCM-package.Rd
+a4bb9d61c477af04359d4775d445c8af *man/VBLPCM-package.Rd
 1d21ac5b8c3d8909d4782465e94cec14 *man/Y_to_E.Rd
 b08842a305ad02114fee7ce021dbf4d5 *man/Y_to_M.Rd
 722b273c922c4daaccf40eb94c0776a7 *man/Y_to_nonE.Rd
@@ -48,11 +48,11 @@ a4b9f5b23e6d95bf2bc81f01697c24d2 *man/vblpcmcovs.Rd
 0168242a2c896382b916a70d449451e6 *man/vblpcmgroups.Rd
 5c4be52f6272def826fa69501171c448 *man/vblpcmroc.Rd
 2bdd3b80ba66c11d79a3ed8941e65493 *man/vblpcmstart.Rd
-7d619ab9b890cb8459294074e1e773d1 *src/KL_funcs.c
+be6c82e2eecdb9fa0e85034a490562d1 *src/KL_funcs.c
 0cacb14c872b3c9d87e81ab3bb4ce9b5 *src/Makevars
 0cacb14c872b3c9d87e81ab3bb4ce9b5 *src/Makevars.in
 db26274171b9a08ecd0cc28116f5a6f5 *src/Makevars.win
-351c1675a569a5656357c37a162664b4 *src/VBLPCM.c
+5a870f0d59901bb51eb4beb772806635 *src/VBLPCM.c
 7d172a0d8910a5a4f7e77db217270a82 *src/adjacency_to_edges.c
 0ce87e3ee8377add5fec4f42df2bb544 *src/bb.c
 61a39c5900a8b02859418ac8e209e974 *src/fruchterman_reingold.c

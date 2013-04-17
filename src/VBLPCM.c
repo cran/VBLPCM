@@ -160,7 +160,7 @@ void Rf_VB_bbs(int *imodel,
 
   tmp=0.0;
   
-  for (l=0; l<*steps; l++) // number of cycles through the variational algorithm
+for (l=0; l<*steps; l++) // number of cycles through the variational algorithm
   {
   R_CheckUserInterrupt();
   if (d_vector[0] > *tol)
@@ -300,7 +300,7 @@ void Rf_VB_bbs(int *imodel,
     d_vector[6]=diff_max(V_nu, old_nu, *G);
     } else d_vector[6] = 0.0;
   R_CheckUserInterrupt();
-  if (d_vector[7])
+  if (d_vector[7] > *tol)
     {
     if (*P_n > 0)
       {
@@ -338,6 +338,8 @@ void Rf_VB_bbs(int *imodel,
       }
       d_vector[7]=diff_max(V_xi_n, old_xi_n, *P_n* *N);
       }
+    if (*P_n == 0)
+      d_vector[7]=0.0;
     if (*P_e > 0)
       {
       flag=6;
@@ -368,6 +370,8 @@ void Rf_VB_bbs(int *imodel,
         }
       d_vector[8]=diff_max(V_psi2_n, old_psi2_n, *P_n);
       }
+    if (*P_n == 0)
+      d_vector[8]=0.0;
     if (*P_e > 0)
       {
       flag=7;
@@ -398,7 +402,8 @@ void Rf_VB_bbs(int *imodel,
   for (i=0; i<9; i++)
     {
     if (d_vector[i] > *tol)
-      Rprintf("%s change was %e\n", V_names[i], d_vector[i]);
+      //Rprintf("%s change was %e\n", V_names[i], d_vector[i]);
+      Rprintf("%d change was %e\n", i, d_vector[i]);
     //else Rprintf("%s converged after %d iterations\n", V_names[i], l+1);
     }
 */

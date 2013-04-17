@@ -1,3 +1,4 @@
+2013/04    fixed bug in convergence check for V_xi_* and V_psi2_* (thanks for Triona Ryan)
 2013/02    fixed bug in random effects updates and tweaked plot function.
 2013/02    fixed bug in predict function for random effects models.
 2013/01    changed onAttach to onLoad in zzz.R
