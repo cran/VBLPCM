@@ -5,8 +5,8 @@
 \description{Perform optimisation of the variational parameters of the variational approximation to
 the posterior for the latent position cluster model for network data. 
 }
-\usage{vblpcmfit(variational.start, STEPS = 30, maxiter = 100, tol=1e-6, NC=NULL, 
-           seed=0, d_vector=rep(TRUE,9))
+\usage{vblpcmfit(variational.start, STEPS = 50, maxiter = 100, tol=1e-6, NC=NULL, 
+           seed=NaN, d_vector=rep(TRUE,9))
 }
 \arguments{
   \item{variational.start}{The starting configuration; use vblpcmstart() to generate this. 
@@ -21,9 +21,8 @@ the posterior for the latent position cluster model for network data.
   \item{NC}{Number of non-links sampled in the case-control type sampler. 
   Results in a speedup but loss of accuracy. 
 }
-  \item{seed}{Optional seed for the gsl_rng random number generator. Supplying NaN is equivalent to
-  not supplying it and gettimeofday is used by C to seed the RNG. Supply a value so that results may
-  be replicated. 
+  \item{seed}{Optional seed for the random number generator. Supplying NaN is equivalent to
+  not supplying it. Supply a value so that results may be replicated. 
 }
   \item{d_vector}{Optional logical vector specifying which sets of variational parameters are to be
   updated. See Details for more information. 

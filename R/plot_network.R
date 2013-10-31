@@ -79,7 +79,7 @@ plot.vblpcm<-function(x, ..., R2=0.2, main="Variational-Bayes Positions", alpha=
   if (model!="plain") vertex.cex=piesize*3.5 else vertex.cex=(piesize*diff(XLIM))/10
   plot.network(x$net, coord = V_z_2D, main = main,
                xlim = XLIM, ylim = YLIM, 
-  	       suppress.axes = 0, edge.col = rgb(t(rep(190/255,3)),alpha=alpha), vertex.cex=vertex.cex, vertex.col=NULL, ...)
+  	       suppress.axes = 0, edge.col = rgb(t(rep(190/255,3)),alpha=alpha), vertex.cex=vertex.cex, vertex.col=colours, ...)
   # add unknown links to plot
   for (i in 1:N)
     for (j in 1:N)

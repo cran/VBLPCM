@@ -1,4 +1,0 @@
-# as per Brian Ripley's instructions: gsl-config finds where the gsl libraries are and links them.
-PKG_CPPFLAGS = `gsl-config --cflags`
-PKG_LIBS = `gsl-config --libs`
-

@@ -127,7 +127,7 @@ void Rf_VB_bbs(int *imodel,
          *old_nu, *old_eta, *old_lambda, *old_omega2;
   if (*P_n > 0)
     {
-    samp_coeffs_n= calloc(*P_n, sizeof(int));
+    samp_coeffs_n = calloc(*P_n, sizeof(int));
     old_xi_n = calloc(*P_n* *N, sizeof(double));
     old_psi2_n = calloc(*P_n, sizeof(double));
     }
@@ -412,12 +412,9 @@ for (l=0; l<*steps; l++) // number of cycles through the variational algorithm
     free(samp_groups);
     free(samp_coeffs_e);
     free(old_xi_e);
-    if (*P_n > 0)
-      {
-      free(samp_coeffs_n);
-      free(old_xi_n);
-      free(old_psi2_n);
-      }
+    free(samp_coeffs_n);
+    free(old_xi_n);
+    free(old_psi2_n);
     free(old_psi2_e);
     free(old_z);
     free(old_sigma2);

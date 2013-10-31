@@ -1,4 +1,8 @@
-2013/04    fixed bug in convergence check for V_xi_* and V_psi2_* (thanks for Triona Ryan)
+2013/10    checked for leaks using AddressSanitizer, moved some Depends to Imports
+2013/05    now if mclust fails Fruchterman-Reingold is (re)called until mclust can find clusters. 
+2013/05    changed setting of seed. A single set.seed is now used. 
+2013/04    plugged memory leak due do diagonal of sociomatrix and corrected case-control usage.
+2013/04    fixed bug in convergence check for V_xi_* and V_psi2_* (thanks for Triona Ryan).
 2013/02    fixed bug in random effects updates and tweaked plot function.
 2013/02    fixed bug in predict function for random effects models.
 2013/01    changed onAttach to onLoad in zzz.R

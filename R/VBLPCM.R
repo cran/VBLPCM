@@ -1,4 +1,4 @@
-vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL, seed=0, d_vector=rep(TRUE,9))
+vblpcmfit<-function(variational.start, STEPS=50, maxiter=100, tol=1e-6, NC=NULL, seed=NaN, d_vector=rep(TRUE,9))
   {
   if (length(d_vector)!=9)
     stop("You must supply a d_vector of length 9. Please refer to the help file for vblpcmfit\n")
@@ -9,6 +9,9 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
       stop("Cannot use zero controls per case\n")
     cat("Using ", NC, "controls per case in case-control sampler\n")
     }
+  if (is.nan(seed))
+    seed=runif(1,0,1e6) # set the seed
+  set.seed(seed) # use this to seed the random number generator in R
   P_n<-variational.start$P_n
   P_e<-variational.start$P_e
   model<-variational.start$model
@@ -121,7 +124,7 @@ vblpcmfit<-function(variational.start, STEPS=30, maxiter=100, tol=1e-6, NC=NULL,
   inv_sigma02->variational.params$inv_sigma02
   NC->variational.params$NC
   as.logical(out$conv)->variational.params$conv
-  seed->variational.params$seed # this is the original seed value, not the value the RNG is now using
+  seed->variational.params$seed # this is the value the RNG is now using, not the original seed value
   BIC<-vblpcmbic(variational.params)
   BIC->variational.params$BIC
   class(variational.params)<-"vblpcm"

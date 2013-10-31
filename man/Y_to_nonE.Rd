@@ -6,18 +6,20 @@
 adjacency matrix. i.e. all zeros in the adjacency matrix will correspond to a row in the
 non-edgelist nonE
 }
-\usage{Y_to_nonE(N, directed, Y)
+\usage{Y_to_nonE(N, NnonE, directed, Y)
 }
 \arguments{
   \item{N}{number of nodes
+}
+  \item{NnonE}{number of non-edges
 }
   \item{directed}{logical indicator of directedness; TRUE=>directed FALSE=>undirected
 }
   \item{Y}{input adjacency matrix
 }
 }
-\value{A matrix of the non-edges with N^2-NE rows and 2 columns 
-where NE is the number of edges. 
+\value{A matrix of the non-edges with NnonE rows and 2 columns 
+where NnonE is the number of non-edges. 
 }
 \author{Michael Salter-Townshend
 }

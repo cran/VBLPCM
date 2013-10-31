@@ -1,3 +1,5 @@
 # Export everything
 exportPattern("*")
-
+importFrom(mclust, mclustBIC)
+importFrom(mclust, summaryMclustBIC)
+import(sna, ergm)

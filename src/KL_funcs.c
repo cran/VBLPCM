@@ -38,6 +38,7 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
   int N = *params->N;
   double KL;
   int *sample_non_edges = calloc(*params->NnonE, sizeof(int));
+  int NC1;
   for (i = 0; i < *params->NE; i++) // loop over all edges
     {
     cov = params->V_xi_e[p]*params->XX_e[((params->E[i*2]-1)*N + params->E[i*2+1]-1)* P_e + p];
@@ -54,6 +55,7 @@ void gr_KL_V_xi_e (const gsl_vector *v_V_xi_e, void *null, gsl_vector *df)
               (1.0 - 1.0/(1.0 + exp (-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5 * cov2)));
     }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
+  NC1=MIN(*params->NnonE, (int)(*params->NC* *params->NE));
   for (j=0;j<NC1;j++) // loop over a sample of the non-edges
     {
     i=sample_non_edges[j];
@@ -84,6 +86,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
   int *sample_nodes, hsum, h, Nnon, k;
   double KL;
   int diam=*params->diam;
+  int NC2;
   for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
     {
     // i->j part
@@ -131,6 +134,7 @@ void gr_KL_V_xi_n (const gsl_vector *v_V_xi_n, void *null, gsl_vector *df)
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
+      NC2=MIN(Nnon, (int)(*params->NC*params->hopslist[i*(CONST+diam+N)+1]));
       for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
@@ -235,6 +239,7 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
   double *tmpsum = calloc(D, sizeof(double));
   double cov, cov2;
   int *sample_nodes;
+  int NC2;
   for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
     {
     tmp = 0.0;
@@ -284,6 +289,7 @@ void gr_KL_V_z_i (const gsl_vector *v_V_z_i, void *null, gsl_vector *df)
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
+      NC2=MIN(Nnon, (int)(*params->NC*params->hopslist[i*(CONST+diam+N)+1]));
       for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
@@ -383,6 +389,7 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
   double V_sigma2_i = gsl_vector_get(v_V_sigma2_i, 0);
   int Nnon=N-params->hopslist[i*(CONST+diam+N)+1]-params->hopslist[i*(CONST+diam+N)+1+diam];
   int *sample_nodes = 0;
+  int NC2;
   for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
     {
     tmp = 0.0;
@@ -430,6 +437,7 @@ void gr_KL_V_sigma2_i (const gsl_vector *v_V_sigma2_i, void *null, gsl_vector *d
       {
       sample_nodes = calloc(Nnon, sizeof(int));
       sample_permutation(Nnon, sample_nodes, params->seed);
+      NC2=MIN(Nnon, (int)(*params->NC*params->hopslist[i*(CONST+diam+N)+1]));
       for (k=0;k<NC2;k++)  // loop over some of the non-edges
         {
         j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
@@ -641,6 +649,7 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
   int N = *params->N;
   double KL;
   int *sample_non_edges = calloc(*params->NnonE, sizeof(int));
+  int NC1;
   params->V_psi2_e[*params->p] = gsl_vector_get(v_V_psi2_e, 0);
   KL = 0.0;
   for (i = 0; i < *params->NE; i++) // loop over all edges
@@ -659,6 +668,7 @@ void gr_KL_V_psi2_e (const gsl_vector *v_V_psi2_e, void * null, gsl_vector *df)
                (1.0+exp(-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5*cov2));
       }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
+  NC1=MIN(*params->NnonE, (int)(*params->NC* *params->NE));
   for (j=0;j<NC1;j++) // loop over a sample of the non-edges
       {
       i=sample_non_edges[j];
@@ -690,6 +700,7 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
   int P_e = *params->P_e;
   double KL;
   int *sample_non_edges = calloc(*params->NnonE, sizeof(int));
+  int NC1;
   params->V_psi2_n[*params->p] = gsl_vector_get(v_V_psi2_n, 0);
   KL = 0.0;
   for (i = 0; i < *params->NE; i++) // loop over all edges
@@ -709,6 +720,7 @@ void gr_KL_V_psi2_n (const gsl_vector *v_V_psi2_n, void * null, gsl_vector *df)
     tmp1 += -0.5/(1.0+exp(-cov + params->dists[((params->E[i*2]-1)*N + params->E[i*2+1]-1)] - 0.5*cov2));
     }
   sample_permutation(*params->NnonE, sample_non_edges, params->seed);
+  NC1=MIN(*params->NnonE, (int)(*params->NC* *params->NE));
   for (j=0;j<NC1;j++) // loop over a sample of the non-edges
     {
     i=sample_non_edges[j];
@@ -784,13 +796,14 @@ void KL_total (int *imodel,
   double *nu,
   double *alpha,
   double *inv_sigma02,
+  double *seed,
   int *NC,
   double *KL)
 { 
   int p, i, g, d, flag=0;
-  double tmp, seed;
+  double tmp;
   params=calloc(1,sizeof(Rf_params));
-  params->seed=&seed;
+  params->seed=seed;
   params->p=&p;
   params->i=&i;
   params->g=&g;

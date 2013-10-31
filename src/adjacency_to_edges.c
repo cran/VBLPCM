@@ -24,7 +24,7 @@ void Y_to_nonE (int *N, int *directed, double *Y, int *nonE)
   int j1, j2, i=0, s;
   for (j1=0;j1<*N;j1++)
     {
-    s=(*directed==1) ? 0 : j1+1;
+    s=(*directed==1) ? 0 : j1;
     for (j2=s;j2<*N;j2++)
       if (Y[j1* *N+j2]==0.0)
         {

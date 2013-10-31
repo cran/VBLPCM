@@ -6,8 +6,6 @@ if(!exists("gof", mode="function")){
 gof.vblpcm <- function (object, ..., nsim=100,
                       GOF=NULL, 
 		      verbose=FALSE) {
-
-  if(!require(ergm,quietly=TRUE)) stop("gof.vblpcm requires package 'ergm' to use.")
   nw <- object$net
   if(is.null(GOF)){
     if(is.directed(nw))
