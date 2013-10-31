@@ -6,10 +6,12 @@ missing links
 \description{uses C code to quickly find all pairs of nodes for which we do not know whether there
 is a link or not, given an adjacency matrix with NaNs indicating unknown / unobserved linkage
 }
-\usage{Y_to_M(N, directed, Y)
+\usage{Y_to_M(N, NM, directed, Y)
 }
 \arguments{
   \item{N}{number of nodes
+}
+  \item{NM}{number of missing edges
 }
   \item{directed}{logical indicator of directedness; TRUE=>directed FALSE=>undirected
 }

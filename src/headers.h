@@ -9,8 +9,6 @@
 #define MIN(a,b) ((a) < (b) ? (a) : (b)) 
 
 #define SUBSET N // for KL_funcs
-#define NC1 MIN(*params->NnonE, *params->NC)
-#define NC2 MIN(Nnon, *params->NC)
 
 typedef struct 
 {

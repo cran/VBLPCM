@@ -8,7 +8,7 @@ vblpcmfit(). User specification of the configuration is recommended as tweaks to
 }
 \usage{vblpcmstart(g.network,G=1,d=2,LSTEPS=5e3,model="plain", CLUST=0, B=NULL,
            lcc=TRUE, edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,
-           socialcovs=NULL,START="FR", seed=0)
+           socialcovs=NULL,START="FR", seed=NaN)
 }
 \arguments{
   \item{g.network}{a network object

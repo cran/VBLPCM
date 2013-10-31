@@ -10,6 +10,7 @@ double logistic_log_like()
   int diam=*params->diam, h, hsum, Nnon;
   int *sample_non_edges;
   int *sample_nodes;
+  int NC1, NC2;
   if (*params->flag==1 || *params->flag==2)
     {
     for (j = 2+diam; j < params->hopslist[i*(CONST+diam+N)+1]+2+diam; j++) // loop over all edges
@@ -60,6 +61,7 @@ double logistic_log_like()
         {
         sample_nodes = calloc(Nnon, sizeof(int));
         sample_permutation(Nnon, sample_nodes, params->seed);
+        NC2=MIN(Nnon, (int)(*params->NC*params->hopslist[i*(CONST+diam+N)+1]));
         for (k=0;k<NC2;k++)  // loop over some of the non-edges
           {
           j=params->hopslist[i*(CONST+diam+N)+2+diam+params->hopslist[i*(CONST+diam+N)+1]+hsum+sample_nodes[k]]-1;
@@ -134,6 +136,7 @@ double logistic_log_like()
       log_like += -tmp - log(1.0+exp(cov+0.5*cov2-tmp));
       }
     sample_permutation(*params->NnonE, sample_non_edges, params->seed);
+    NC1=MIN(*params->NnonE, (int)(*params->NC* *params->NE));
     for (j=0;j<NC1;j++) // loop over NC1 of the non-edges
       {
       i=sample_non_edges[j];

@@ -5,16 +5,16 @@ Y_to_E<-function(N, NE, directed, Y)
           directed=as.integer(directed), Y=as.numeric(t(Y)), E=as.integer(t(E)),PACKAGE="VBLPCM")
   return(t(matrix(ans$E,2)))
   }
-Y_to_nonE<-function(N, directed, Y)
+Y_to_nonE<-function(N, NnonE, directed, Y)
   {
-  nonE<-matrix(0, sum(Y==0,na.rm=1), 2)
+  nonE<-matrix(0, NnonE, 2)
   ans<-.C("Y_to_nonE", NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
           Y=as.numeric(t(Y)), nonE=as.integer(t(nonE)),PACKAGE="VBLPCM")
   return(t(matrix(ans$nonE,2)))
   }
-Y_to_M<-function(N, directed, Y)
+Y_to_M<-function(N, NM, directed, Y)
   {
-  M<-matrix(0, sum(is.na(Y)), 2)
+  M<-matrix(0, NM, 2)
   ans<-.C("Y_to_M", NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
           Y=as.numeric(t(Y)), M=as.integer(t(M)),PACKAGE="VBLPCM")
   return(t(matrix(ans$M,2)))

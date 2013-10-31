@@ -1,10 +1,11 @@
 # functions for calculating adjacency matrices, edges, non-edges, etc from each other
 #source("adjacency_to_edges.R") 
 vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B=NULL, 
-                       lcc=TRUE,edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,socialcovs=NULL,START="FR", seed=0)
+                       lcc=TRUE,edgecovs=NULL,sendcovs=NULL,receivecovs=NULL,socialcovs=NULL,START="FR", seed=NaN)
   {
-  if (!is.nan(seed))
-    set.seed(seed) # use this to seed the random number generator in R
+  if (is.nan(seed))
+    seed=runif(1,0,1e6) # set the seed
+  set.seed(seed) # use this to seed the random number generator in R
   directed<-is.directed(g.network)
   if (!(model=="plain" | model=="rsender" | model=="rreceiver" | model=="rsocial"))
     {
@@ -78,11 +79,11 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B
   NE<-network.edgecount(g.network)
   Y<-as.sociomatrix(g.network)
   E<-Y_to_E(N,NE,g.network$gal$directed,Y)
-  nonE<-Y_to_nonE(N, directed, Y)
-  NnonE<-nrow(nonE)
+  NnonE<-ifelse(directed, sum(Y==0,na.rm=1), (sum(Y==0,na.rm=1)-N)/2+N) # subtracting N and adding back accounts for diagonal
+  nonE<-Y_to_nonE(N, NnonE, directed, Y)
   NC<-NnonE
-  M<-Y_to_M(N, directed, Y)
-  NM<-nrow(M)
+  NM<-ifelse(directed, sum(is.na(Y)), sum(is.na(Y))/2)
+  M<-Y_to_M(N, NM, directed, Y)
   # create edge/non-edge matrix for all nodes
   EnonE<-matrix(NaN,N,N)
   numedges<-matrix(NaN,N,2) # columns are #edges and #non-links
@@ -144,7 +145,6 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B
     }
   if (START=="FR")
     {
-    #require(igraph)
     #X<-layout.fruchterman.reingold(graph.adjacency(Y))
     #detach("package:igraph")
     #X<-network.layout.fruchtermanreingold(g.network,layout.par=list(area=N)) # only works in 2D
@@ -183,20 +183,16 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B
     #initial_V_xi_n<-c(t(matrix(c(tmp1, tmp2),N)))
     initial_V_xi_n<-cbind(tmp1,tmp2)
     }
-  if (d>1) 
+  repeat
     {
-    fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="VII"),initial_V_z)
-    } else fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="V"),initial_V_z)
-  if (is.null(fitmc$bic))
-    {
-    print("Couldn't fit initial clustering using mclust")
-    print("Try using a different initialisation or different number of clusters or latent space dimension")
-    print("Using no groups for now")
-    G<-1
     if (d>1) 
       {
       fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="VII"),initial_V_z)
       } else fitmc<-summary(mclustBIC(initial_V_z,G=G,modelNames="V"),initial_V_z)
+    if (!is.null(fitmc$bic)) 
+      break
+    warning("Couldn't fit initial clustering using mclust; refining initialisation")
+    initial_V_z<-log_like_forces(g.network, d, initial_V_z, B, m=N, 100)$X
     }
   initial_V_eta<-t(fitmc$parameter$mean)
   initial_V_omega2<-c(t(fitmc$parameter$variance$sigmasq)) # for use with EII

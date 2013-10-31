@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 2.4.1\cr
-Date: \tab 2013-04-17\cr
+Version: \tab 2.4.2\cr
+Date: \tab 2013-10-31\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }
@@ -73,7 +73,7 @@ Societies and Cities in the Age of Instant Access Berlin:Springer, 275--294
 ### simulated data example with missing edges ###
 data(simulated.network,package="VBLPCM")
 g<-network(Y, directed=FALSE)
-v.start<-vblpcmstart(g,G=3)
+v.start<-vblpcmstart(g,G=3,seed=5)
 v.fit<-vblpcmfit(v.start)
 ### plot the mean posterior positions ###
 plot(v.fit, main="simulated network with missing edges: VB Solution") 
@@ -124,7 +124,7 @@ expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 ### run a bigger example, using the likelihood sampler set to 0.1 ###
 ### not run
 ##  data(aids,package="VBLPCM")
-##  v.start<-vblpcmstart(aids.net,G=7,model="rsender")
+##  v.start<-vblpcmstart(aids.net,G=7,model="rsender",d=3)
 ##  use the case-control sampler with 10 controls per case
 ##  v.fit<-vblpcmfit(v.start,NC=10)
 ### plot the mean posterior positions ###
