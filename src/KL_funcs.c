@@ -534,8 +534,8 @@ void gr_KL_V_alpha_g (const gsl_vector *v_V_alpha_g, void *null, gsl_vector *df)
 	(*params->D* *params->inv_sigma02* gsl_sf_psi_1(0.5* *params->inv_sigma02*V_alpha_g)-
                        0.5* *params->inv_sigma02*(params->V_sigma2[i]+params->V_omega2[g]+tmp));
     }
-  KL = tmpsum + (0.5*(V_alpha_g-params->alpha[*params->g])* gsl_sf_psi_1(0.5*V_alpha_g) - 
-		     gsl_sf_psi(0.5*V_alpha_g)) + gsl_sf_psi(0.5*V_alpha_g)/lgamma(0.5*V_alpha_g);
+  KL = tmpsum + (0.5*(V_alpha_g-params->alpha[*params->g])* gsl_sf_psi_1(0.5*V_alpha_g));// - 
+		     //gsl_sf_psi(0.5*V_alpha_g)) + gsl_sf_psi(0.5*V_alpha_g)/lgamma(0.5*V_alpha_g);
   gsl_vector_set(df, 0, -KL);
   return;
 }

@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 2.4.2\cr
-Date: \tab 2013-10-31\cr
+Version: \tab 2.4.3\cr
+Date: \tab 2014-03-07\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }

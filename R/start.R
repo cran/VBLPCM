@@ -69,6 +69,8 @@ vblpcmstart<-function(g.network, G=1, d=2, LSTEPS=5e3, model="plain", CLUST=0, B
       receivecovs<-as.matrix(receivecovs[tmp,])
     if (!is.null(socialcovs))
       socialcovs<-as.matrix(socialcovs[tmp,])
+    if (!is.null(edgecovs))
+      edgecovs<-c(matrix(edgecovs,N)[tmp,tmp])
     g.network<-network(as.sociomatrix(all_g.network)[(1:N)[tmp],(1:N)[tmp]],directed=is.directed(all_g.network))
     for (att in list.vertex.attributes(all_g.network))
       set.vertex.attribute(g.network,att,get.vertex.attribute(all_g.network,att)[tmp])

@@ -1,5 +1,5 @@
-7b700f1100f4f02975440441b77fc806 *CHANGELOG
-b77f654729f3b2c6e438b2b07580c9dd *DESCRIPTION
+47c4ad357b789a41e51e3d1b0c1e0e75 *CHANGELOG
+c405b14618ed92c0c3d53a3530a3cee7 *DESCRIPTION
 c771c3b32ace90453b25137ffb8b2230 *NAMESPACE
 93ddbebf082e5c5a3d09d70b0ba310af *R/KL.R
 85b49f0298acd5832328bf7056a7d89a *R/VBLPCM.R
@@ -12,11 +12,11 @@ c771c3b32ace90453b25137ffb8b2230 *NAMESPACE
 6d0b56049f54c59dbe71754983a9a80d *R/predict.R
 203861162888e86a84e9b20d62f2d8ba *R/print.vblpcm.R
 32ef7505c44b2245b165b30aa1ebf816 *R/roc.R
-cbc3892e84de2ad70d53419d1f5b66e2 *R/start.R
+74999cc02889948d93e218447e9882d0 *R/start.R
 4f69c86b26fbc64b90e83eb39a6ac450 *R/summarise_groups.R
 054e8f388ac9c8373ab5b6e66818754e *R/summary.vblpcm.R
 31c8ccdf29df94b0f5f9508fcb1a7e9e *R/vb_bic.R
-63614bbf06782761aa98e6a8896385ef *R/zzz.R
+254ef73e0dbf2d89e737a0b51310b828 *R/zzz.R
 1215b49b49d2dcb0f996500bd0e7c5ce *configure
 654b38e8f3726e7c9613425a5b50bbd8 *configure.ac
 013778ff539b989141783da07f3ddd03 *data/aids.rda
@@ -25,7 +25,7 @@ cbc3892e84de2ad70d53419d1f5b66e2 *R/start.R
 9beed6138652a9e4ebedd2cb1f270acb *inst/CITATION
 4ccabdb12a6c7592d26cceab34755ee0 *man/E_to_Y.Rd
 62b220ff6a4b95449f21d7eabbbd5848 *man/VBLPCM-internal.Rd
-8d1dca5c8575cf5ebd1fa4bb26a50c8d *man/VBLPCM-package.Rd
+fc35fed5ec4639c8185242377165c745 *man/VBLPCM-package.Rd
 1d21ac5b8c3d8909d4782465e94cec14 *man/Y_to_E.Rd
 0eb794fe9b2faea92c95f0146560ac1a *man/Y_to_M.Rd
 a3d9e7566f96741ba738afda6cade6d7 *man/Y_to_nonE.Rd
@@ -48,10 +48,10 @@ faf7bff0082bb61e117b9d83441fcd3a *man/vblpcmfit.Rd
 0168242a2c896382b916a70d449451e6 *man/vblpcmgroups.Rd
 5c4be52f6272def826fa69501171c448 *man/vblpcmroc.Rd
 6b4b558ac60b6a284b02bd5295fb6ee9 *man/vblpcmstart.Rd
-acaeca43833c3432693fe5f9a6149bf9 *src/KL_funcs.c
+b590337ea2d7b3537ddf0f0af08451fb *src/KL_funcs.c
 0cacb14c872b3c9d87e81ab3bb4ce9b5 *src/Makevars.in
 db26274171b9a08ecd0cc28116f5a6f5 *src/Makevars.win
-6de979e4a8336b9dd9a29b760ae19c2d *src/VBLPCM.c
+a62a6fd799c80e8645aa4c8a759a8edf *src/VBLPCM.c
 f817a5918c432421b21e0be0475d4861 *src/adjacency_to_edges.c
 0ce87e3ee8377add5fec4f42df2bb544 *src/bb.c
 61a39c5900a8b02859418ac8e209e974 *src/fruchterman_reingold.c

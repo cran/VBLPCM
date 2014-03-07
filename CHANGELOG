@@ -1,3 +1,5 @@
+2014/01    removed inv_sigma02 term from omega2 update (thanks to Robin Gong). 
+2014/01    fixed bug in use of start function when using largest connected component only and edge covariates
 2013/10    checked for leaks using AddressSanitizer, moved some Depends to Imports
 2013/05    now if mclust fails Fruchterman-Reingold is (re)called until mclust can find clusters. 
 2013/05    changed setting of seed. A single set.seed is now used. 

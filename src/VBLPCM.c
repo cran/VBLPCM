@@ -242,7 +242,8 @@ for (l=0; l<*steps; l++) // number of cycles through the variational algorithm
         //tmp = GSQRT (tmp+*D*(V_sigma2[samp_nodes[i]]+V_omega2[samp_groups[g]]));
         tmp = GSQRT (tmp+(V_sigma2[samp_nodes[i]]+V_omega2[samp_groups[g]]));
         V_lambda[samp_groups[g]* *N + samp_nodes[i]] = 
-                exp(-1.0-0.5* *inv_sigma02*V_alpha[samp_groups[g]]*(tmp)+
+                //exp(-1.0-0.5* *inv_sigma02*V_alpha[samp_groups[g]]*(tmp)+
+                exp(-1.0+gsl_sf_psi(0.5* *inv_sigma02*V_alpha[samp_groups[g]])-0.5* *inv_sigma02*V_alpha[samp_groups[g]]*(tmp)+
                        gsl_sf_psi(V_nu[samp_groups[g]]) - gsl_sf_psi(tmpsum1));
         }
       tmp = 0.0;
@@ -264,7 +265,7 @@ for (l=0; l<*steps; l++) // number of cycles through the variational algorithm
         {
         tmp = 0.0;
         for (i=0; i<*N; i++)
-          tmp += V_lambda[samp_groups[g]* *N + i]* *inv_sigma02*V_alpha[samp_groups[g]];
+          tmp += V_lambda[samp_groups[g]* *N + i]* V_alpha[samp_groups[g]]; // removed inv_sigma02 31/01/2014
 	tmp = tmp/(*D/ *inv_sigma02) + 1.0/ *omega2;
         V_omega2[samp_groups[g]] = 1.0/tmp;
         }
