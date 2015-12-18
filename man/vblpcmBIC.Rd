@@ -30,11 +30,12 @@ Mark S. Handcock, Adrian E. Raftery and Jeremy Tantrum (2007).
 \keyword{BIC}
 \examples{
 data(sampson)
-### plot the BIC for G=1,2,3,4,5 groups 
+set.seed(1)
+### plot the BIC for G=2,3,4 groups 
 gbic<-list(groups=NULL,bic=NULL)
-for (g in 1:5)
+for (g in 2:4)
   {
-  v.fit<-vblpcmfit(vblpcmstart(samplike,G=g,LSTEPS=1e4),STEPS=20)
+  v.fit<-vblpcmfit(vblpcmstart(samplike,G=g,LSTEPS=1e3),STEPS=20)
   gbic$groups[g]=v.fit$G
   gbic$bic[g]=v.fit$BIC$overall
   }

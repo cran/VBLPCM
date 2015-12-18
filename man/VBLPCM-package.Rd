@@ -11,8 +11,8 @@ Variational Bayes approximation to the posterior for the Latent Position Cluster
 \tabular{ll}{
 Package: \tab VBLPCM\cr
 Type: \tab Package\cr
-Version: \tab 2.4.3\cr
-Date: \tab 2014-03-07\cr
+Version: \tab 2.4.4\cr
+Date: \tab 2015-12-14\cr
 License: \tab GPL (>=2) \cr
 LazyLoad: \tab yes\cr
 }
@@ -70,59 +70,25 @@ Societies and Cities in the Age of Instant Access Berlin:Springer, 275--294
 \code{\link[VBLPCM]{vblpcmfit}}
 }
 \examples{
-### simulated data example with missing edges ###
-data(simulated.network,package="VBLPCM")
-g<-network(Y, directed=FALSE)
-v.start<-vblpcmstart(g,G=3,seed=5)
-v.fit<-vblpcmfit(v.start)
-### plot the mean posterior positions ###
-plot(v.fit, main="simulated network with missing edges: VB Solution") 
-### Use ROC / AUC to get a measure of model fit to the data ###
-vblpcmroc(v.fit)
-
-### Sampson's monks ###
+### Sampson's monks with sender random effects ###
 data(sampson,package="VBLPCM")
-v.start<-vblpcmstart(samplike,G=3)
-v.fit<-vblpcmfit(v.start)
+v.start<-vblpcmstart(samplike,G=3,model="rreceiver",LSTEPS=1e3)
+v.fit<-vblpcmfit(v.start,STEPS=20)
 ### plot the mean posterior positions ###
-plot(v.fit, main="Sampson's Monks: VB Solution")
+plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Receiver Random Effects")
 ### Who's in each group?  ###
 vblpcmgroups(v.fit)
-### Use ROC / AUC to get a measure of model fit to the data ###
-vblpcmroc(v.fit)
+
+### Look at a goodness-of-fit plot ###
+plot(gof(v.fit,GOF=~distance))
 
 ### create a matrix of link posterior probabilities given the fitted model ###
 probs<-predict.vblpcm(v.fit)
 ### create a boxplot goodness-of-fit graphic ###
 boxplot(split(probs,as.sociomatrix(samplike)))
 
-### Sampson's monks with sender random effects ###
-data(sampson,package="VBLPCM")
-v.start<-vblpcmstart(samplike,G=3,model="rreceiver")
-v.fit<-vblpcmfit(v.start)
-### plot the mean posterior positions ###
-plot(v.fit, R2=0.05,main="Sampson's Monks: VB with Receiver Random Effects")
-
-### Use ROC / AUC to get a measure of model fit to the data ###
-vblpcmroc(v.fit)
-### Look at gof plots ###
-plot(gof(v.fit))
-
-### find the most probable link that does not in fact occur ###
-monks<-network.vertex.names(samplike)
-# save adjacency matrix to Y
-Y<-as.sociomatrix(samplike)
-probs<-predict.vblpcm(v.fit)
-expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
-### this is a self link; let's find the most probable non-link that's not a self link ###
-diag(Y)<-NaN
-expand.grid(monks,monks)[Y==0,][order(probs[Y==0],decreasing=TRUE),][1,]
-
-### find the least probable link that does in fact occur ###
-expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
-
 ### run a bigger example, using the likelihood sampler set to 0.1 ###
-### not run
+### ## Not run:
 ##  data(aids,package="VBLPCM")
 ##  v.start<-vblpcmstart(aids.net,G=7,model="rsender",d=3)
 ##  use the case-control sampler with 10 controls per case
@@ -132,4 +98,5 @@ expand.grid(monks,monks)[Y==1,][order(probs[Y==1]),][1,]
 
 ### Use ROC / AUC to get a measure of model fit to the data ###
 ##  vblpcmroc(v.fit)
+## End(Not run)
 }
