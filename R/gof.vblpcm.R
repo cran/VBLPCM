@@ -327,6 +327,6 @@ gof.vblpcm <- function (object, ..., nsim=100,
   "obs.dspart", "pobs.dspart", "sim.dspart", "psim.dspart", "pval.dspart", "bds.dspart",
   "GOF"
                         )
-  class(returnlist) <- "gofobject"
+  class(returnlist) <- "gof"
   returnlist
   }

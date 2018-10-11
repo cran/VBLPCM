@@ -1,3 +1,4 @@
+2018/10    changed use of deprecated plot.gofobject function from ergm to plot.gof and added cleanup script.
 2015/12    updated GSL requirements; added imports of 'sna' functions; added network to depends; shortened BIC example. 
 2014/01    removed inv_sigma02 term from omega2 update (thanks to Robin Gong). 
 2014/01    fixed bug in use of start function when using largest connected component only and edge covariates.

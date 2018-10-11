@@ -1,12 +1,12 @@
-edec4c1097bdec815bdfe52e4d3a2753 *CHANGELOG
-ec25c2942a92df8faf6bda0731648d2b *DESCRIPTION
+9298ba91502ec4425617541a31b226fb *CHANGELOG
+adf29b1b2e977fe89f0030a98feb6449 *DESCRIPTION
 597a688f5393ca3c717a2e752cbb198a *NAMESPACE
 93ddbebf082e5c5a3d09d70b0ba310af *R/KL.R
 85b49f0298acd5832328bf7056a7d89a *R/VBLPCM.R
 379f163c1563f5e8cfaf99a968526ccf *R/adjacency_to_edges.R
 124931b1ae2da9856a9bed1beb43047d *R/covs.R
 579ace11895685c2763f4582f906a115 *R/fruchterman_reingold.R
-98dacf0e91110b016a91e5c740b2cc51 *R/gof.vblpcm.R
+cf57d570a3892125e33517728de7664b *R/gof.vblpcm.R
 22cfa974f939d2a3eaac900b0c8ef12f *R/log_like_forces.R
 9fc252b68a6dc43a2bc8d97ab3f07f53 *R/plot_network.R
 6d0b56049f54c59dbe71754983a9a80d *R/predict.R
@@ -17,6 +17,7 @@ ec25c2942a92df8faf6bda0731648d2b *DESCRIPTION
 054e8f388ac9c8373ab5b6e66818754e *R/summary.vblpcm.R
 31c8ccdf29df94b0f5f9508fcb1a7e9e *R/vb_bic.R
 254ef73e0dbf2d89e737a0b51310b828 *R/zzz.R
+4bc9cad0e12cef15c173705695cbc12f *cleanup
 8fdbeab6fde9385bf71d4b40a3da7308 *configure
 d3296a562eec11e06a82b665f03e836e *configure.ac
 013778ff539b989141783da07f3ddd03 *data/aids.rda
@@ -25,7 +26,7 @@ d3296a562eec11e06a82b665f03e836e *configure.ac
 9beed6138652a9e4ebedd2cb1f270acb *inst/CITATION
 4ccabdb12a6c7592d26cceab34755ee0 *man/E_to_Y.Rd
 62b220ff6a4b95449f21d7eabbbd5848 *man/VBLPCM-internal.Rd
-7b4d99864fa6aa645054548e9d19a63f *man/VBLPCM-package.Rd
+9e73cc9b67f493a8acc10e597318fbb6 *man/VBLPCM-package.Rd
 1d21ac5b8c3d8909d4782465e94cec14 *man/Y_to_E.Rd
 0eb794fe9b2faea92c95f0146560ac1a *man/Y_to_M.Rd
 a3d9e7566f96741ba738afda6cade6d7 *man/Y_to_nonE.Rd
