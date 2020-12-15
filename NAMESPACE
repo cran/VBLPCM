@@ -1,5 +1,5 @@
-# Export everything
-exportPattern("*")
+useDynLib(VBLPCM, .registration = TRUE, .fixes="C_")
+exportPattern("^[^\\C_]") # export all patterns that don't start with a C_
 importFrom(mclust, mclustBIC)
 importFrom(mclust, summaryMclustBIC)
 importFrom(sna, component.largest)
@@ -14,4 +14,3 @@ S3method(gof, vblpcm)
 S3method(predict, vblpcm)
 S3method(print, vblpcm)
 S3method(summary, vblpcm)
-

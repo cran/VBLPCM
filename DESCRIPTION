@@ -1,8 +1,8 @@
 Package: VBLPCM
 Type: Package
 Title: Variational Bayes Latent Position Cluster Model for Networks
-Version: 2.4.5
-Date: 2018-10-09
+Version: 2.4.7
+Date: 2020-12-04
 Author: Michael Salter-Townshend
 Maintainer: Michael Salter-Townshend <mike.saltertownshend@gmail.com>
 Description: Fit and simulate latent position and cluster
@@ -14,6 +14,6 @@ URL: https://www.r-project.org, https://mststats.github.io/#software
 License: GPL (>= 2)
 LazyLoad: yes
 NeedsCompilation: yes
-Packaged: 2018-10-11 19:27:05 UTC; mst
+Packaged: 2020-12-08 15:40:19 UTC; mst
 Repository: CRAN
-Date/Publication: 2018-10-11 19:50:03 UTC
+Date/Publication: 2020-12-15 22:30:18 UTC

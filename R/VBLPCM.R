@@ -64,8 +64,7 @@ vblpcmfit<-function(variational.start, STEPS=50, maxiter=100, tol=1e-6, NC=NULL,
            xi=as.double(xi), psi2=as.double(psi2), sigma02=as.double(sigma02),
            omega2=as.double(omega2), nu=as.double(nu), alpha=as.double(alpha),
            inv_sigma02=as.double(inv_sigma02), tol=as.double(tol), NC=as.integer(NC), 
-	   seed=as.double(seed), d_vector=as.double(d_vector), conv=as.integer(conv),
-	   PACKAGE="VBLPCM")
+	   seed=as.double(seed), d_vector=as.double(d_vector), conv=as.integer(conv))
   if (model=="plain") 
     V_xi_n<-NaN
   if (model!="plain") 

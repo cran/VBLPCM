@@ -5,7 +5,7 @@
 #define damp 1.0e0
 #define LIM 2.0e1
 
-void log_like_forces(int *directed, int *N, int *D, int *steps, double *Y, double *X, double *B, double *m){
+void log_like_forces(int *directed, int *N, int *D, int *steps, double *Y, double *X, double *B, double *m, Rf_params *params){
   double *dxdy=calloc(*N* *D, sizeof(double)); // position change vector
   double xd[*D], ded, f;
   int i, j, k, d, s;
