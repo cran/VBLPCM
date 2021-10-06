@@ -1,5 +1,6 @@
 
-AC_INIT([src/VBLPCM.c])
+AC_INIT
+AC_CONFIG_SRCDIR([src/VBLPCM.c])
 
 ## Use gsl-config to find arguments for compiler and linker flags
 ##
@@ -17,5 +18,6 @@ fi
 # Now substitute these variables in src/Makevars.in to create src/Makevars
 AC_SUBST(GSL_CFLAGS) 
 AC_SUBST(GSL_LIBS)
-AC_OUTPUT(src/Makevars)
+AC_CONFIG_FILES([src/Makevars])
+AC_OUTPUT
 

@@ -1,3 +1,5 @@
+2021/10    updated configure script using autoupdate
+2020/12    removed use of externs in src .c files, now passing pointers to structs
 2020/12    using useDynLib now for compatibility with new R versions
 2020/10    had to change name of log_like_forces.c to ll_layout.c as was not compiling. Odd error resolved but not understood. 
 2018/10    changed use of deprecated plot.gofobject function from ergm to plot.gof and added cleanup script.

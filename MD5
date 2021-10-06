@@ -1,5 +1,5 @@
-97433120740b0b26e95c0c85af2e2d7a *CHANGELOG
-0244b884d4f187b8226bdd1e372b6bef *DESCRIPTION
+f0fa7bc5a911baef4e7544ac79973a3f *CHANGELOG
+bf5ba392c2695ae95fc507dafd9905db *DESCRIPTION
 1d69d4741adbf48761e664579cf6b9ee *NAMESPACE
 01d48538efa577a3b1d341d06c097bea *R/KL.R
 59018b906a56eadb7f679bce30658b81 *R/VBLPCM.R
@@ -18,15 +18,15 @@ f2399d5414a7daef462ea7f027bab6bb *R/start.R
 31c8ccdf29df94b0f5f9508fcb1a7e9e *R/vb_bic.R
 31cf9d5d81f03b2dd6cf446936301a3b *R/zzz.R
 4cda533c9aac1b3aa6d890381c4dd46c *cleanup
-8fdbeab6fde9385bf71d4b40a3da7308 *configure
-d3296a562eec11e06a82b665f03e836e *configure.ac
+7b0797ae9bdf1a440fef9986bfc3f6b0 *configure
+230471d9e64e9216efae1ab64933a57d *configure.ac
 013778ff539b989141783da07f3ddd03 *data/aids.rda
 375a6d94bfb6ff8b879de44250fff5d3 *data/sampson.rda
 1276843b63a1602933616b872ee9317f *data/simulated.network.rda
 9beed6138652a9e4ebedd2cb1f270acb *inst/CITATION
 4ccabdb12a6c7592d26cceab34755ee0 *man/E_to_Y.Rd
 62b220ff6a4b95449f21d7eabbbd5848 *man/VBLPCM-internal.Rd
-cdcfeeef5f812cb09182fe1118aa0292 *man/VBLPCM-package.Rd
+947bed8ddafc3495d5be6a2ea23d5af3 *man/VBLPCM-package.Rd
 1d21ac5b8c3d8909d4782465e94cec14 *man/Y_to_E.Rd
 0eb794fe9b2faea92c95f0146560ac1a *man/Y_to_M.Rd
 a3d9e7566f96741ba738afda6cade6d7 *man/Y_to_nonE.Rd
