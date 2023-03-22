@@ -20,7 +20,7 @@ log_like_forces<-function(net, D, X, B, m=network.size(net), steps=1e3)
     if (doB==1)
       B<-optim(B, loglike, x=tmpx, y=y, method="BFGS", control=list(fnscale=-1))$par
     # update X
-    out<-.C("log_like_forces", NAOK=TRUE, directed=as.integer(directed), N=as.integer(N), 
+    out<-.C(C_log_like_forces, NAOK=TRUE, directed=as.integer(directed), N=as.integer(N), 
 	    D=as.integer(D), steps=as.integer(steps), Y=as.double(t(Y)), X=as.numeric(t(X)), 
 	    B=as.numeric(B), m=as.numeric(N))
     out$X<-t(matrix(out$X,ncol=N))

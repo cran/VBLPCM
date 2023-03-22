@@ -52,7 +52,7 @@ vblpcmfit<-function(variational.start, STEPS=50, maxiter=100, tol=1e-6, NC=NULL,
   inv_sigma02<-variational.start$inv_sigma02
   imodel=switch(model, plain=0, rsender=1, rreceiver=2, rsocial=3)
   conv=0 # not converged to start with
-  out<-.C("Rf_VB_bbs", NAOK=TRUE, imodel=as.integer(imodel), steps=as.integer(STEPS), max_iter=as.integer(maxiter), P_n=as.integer(P_n), 
+  out<-.C(C_Rf_VB_bbs, NAOK=TRUE, imodel=as.integer(imodel), steps=as.integer(STEPS), max_iter=as.integer(maxiter), P_n=as.integer(P_n), 
            P_e=as.integer(P_e), D=as.integer(d), N=as.integer(N), NE=as.integer(NE), NnonE=as.integer(NnonE), NM=as.integer(NM),
            G=as.integer(G), Y=as.numeric(t(Y)), E=as.integer(t(E)), nonE=as.integer(t(nonE)), M=as.integer(t(M)),
   	   numedges=as.integer(t(numedges)), EnonE=as.integer(t(EnonE)), diam=as.integer(diam),

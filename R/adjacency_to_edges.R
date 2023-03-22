@@ -1,28 +1,28 @@
 Y_to_E<-function(N, NE, directed, Y)
   {
   E<-matrix(NaN,NE,2)
-  ans<-.C("Y_to_E", NAOK=TRUE, N=as.integer(N),  
+  ans<-.C(C_Y_to_E, NAOK=TRUE, N=as.integer(N),  
           directed=as.integer(directed), Y=as.numeric(t(Y)), E=as.integer(t(E)))
   return(t(matrix(ans$E,2)))
   }
 Y_to_nonE<-function(N, NnonE, directed, Y)
   {
   nonE<-matrix(0, NnonE, 2)
-  ans<-.C("Y_to_nonE", NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
+  ans<-.C(C_Y_to_nonE, NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
           Y=as.numeric(t(Y)), nonE=as.integer(t(nonE)))
   return(t(matrix(ans$nonE,2)))
   }
 Y_to_M<-function(N, NM, directed, Y)
   {
   M<-matrix(0, NM, 2)
-  ans<-.C("Y_to_M", NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
+  ans<-.C(C_Y_to_M, NAOK=TRUE, N=as.integer(N), directed=as.integer(directed), 
           Y=as.numeric(t(Y)), M=as.integer(t(M)))
   return(t(matrix(ans$M,2)))
   }
 E_to_Y<-function(N, NE, directed, E)
   {
   Y<-matrix(0,N,N)
-  ans<-.C("E_to_Y", NAOK=TRUE, N=as.integer(N), NE=as.integer(NE), 
+  ans<-.C(C_E_to_Y, NAOK=TRUE, N=as.integer(N), NE=as.integer(NE), 
           directed=as.integer(directed), E=as.integer(t(E)), Y=as.numeric(t(Y)))
   return(matrix(ans$Y,N))
   }

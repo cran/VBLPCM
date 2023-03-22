@@ -5,7 +5,7 @@ fruchterman_reingold<-function(net, D=2, steps=1000, repulserad=N^D, m=N*(D-1), 
   Y<-as.sociomatrix(net)
   X<-matrix(runif(N*D,-D^2,D^2),ncol=D)
   # update X
-  out<-.C("fruchterman_reingold", NAOK=TRUE, directed=as.integer(directed), N=as.integer(N), 
+  out<-.C(C_fruchterman_reingold, NAOK=TRUE, directed=as.integer(directed), N=as.integer(N), 
 	  D=as.integer(D), steps=as.integer(steps), Y=as.double(t(Y)), X=as.numeric(t(X)), 
 	  repulserad=as.double(repulserad), m=as.numeric(m), volume=as.numeric(volume))
   X<-t(matrix(out$X,ncol=N))

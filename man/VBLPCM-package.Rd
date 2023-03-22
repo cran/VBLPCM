@@ -11,8 +11,8 @@
   \tabular{ll}{
     Package: \tab VBLPCM\cr
     Type: \tab Package\cr
-    Version: \tab 2.4.8\cr
-    Date: \tab 2021-10-06\cr
+    Version: \tab 2.4.9\cr
+    Date: \tab 2023-03-22\cr
     License: \tab GPL (>=2) \cr
     LazyLoad: \tab yes\cr
   }

@@ -40,7 +40,7 @@ vblpcmKL<-function(x)
   NC=x$NC
   KL=0
   imodel=switch(model, plain=0, rsender=1, rreceiver=2, rsocial=3)
-  final_KL<-.C("KL_total", NAOK=TRUE, 
+  final_KL<-.C(C_KL_total, NAOK=TRUE, 
 	       imodel=as.integer(imodel), P_n=as.integer(P_n),P_e=as.integer(P_e),D=as.integer(d), N=as.integer(N), 
 	       NE=as.integer(NE), NnonE=as.integer(NnonE), NM=as.integer(NM),
 	       G=as.integer(G), Y=as.numeric(t(Y)), E=as.integer(t(E)), nonE=as.integer(t(nonE)), M=as.integer(t(M)),

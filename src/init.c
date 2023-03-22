@@ -23,7 +23,7 @@ static const R_CMethodDef CEntries[] = {
 void R_init_VBLPCM(DllInfo *dll)
 {
     R_registerRoutines(dll, CEntries, NULL, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
+    R_useDynamicSymbols(dll, TRUE);
     R_forceSymbols(dll, TRUE);
 }
 
